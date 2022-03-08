@@ -16,62 +16,69 @@ bibliography: references.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
+# Load libraries
 library(tidyverse)
-library(palmerpenguins)
+library(kableExtra)
+
+# Read in data
+gss_data <- read_csv(here::here("inputs/data/gss.csv"))
+
 ```
 
 # Introduction
 
 You can and should cross-reference sections and sub-sections. For instance, Section \@ref(data). R Markdown automatically makes the sections lower case and adds a dash to spaces to generate labels, for instance, Section \@ref(first-discussion-point). 
 
+Possible Research Questions:
+
+General Family
+
+- What do families in Canada look like? (in terms of marriage status, number of children, ethnic diversity and immigration and income, etc.)?
+- How does this differ by province/geographical region?
+
+Marriage & relationships
+
+- Do couples prefer marriage over common-law relationships? Is this related in any way to religious affiliation?
+- Do couples want to have children?
+- What is the rate of separation/divorce?
 
 
 # Data
 
-Our data is of penguins (Figure \@ref(fig:bills)).
+## Data Source and Methodology
 
-```{r bills, fig.cap="Bills of penguins", echo = FALSE}
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = FALSE) +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+The data was obtained from Canada's 2017 General Social Survey (GSS) on the Family. The survey was conducted during the period of February 2nd to November 30th 2017 by computer assisted telephone interviews of participants. The target population was all non-institutionalized persons ages 15 years and older in Canada, excluding residents of the Yukon, Northwest Territories, and Nunavut. Participants were chosen using stratified sampling by geographic area within the 10 provinces, with one person representing each household to be interviewed. The response rate was 52.4% with a total of 20,602 respondents.
+
+<!-- TODO: talk about the frame -->
+
+## Key features
+
+The raw data includes 461 variables which were derived from the questionnaire responses. Some key features included age, sex, place of birth, marriage, ethnic diversity and immigration, education, work, income, children, religion, family structure, geographic location, household size and living arrangements. We used R [@citeR] and R packages tidyverse [@tidy] and janitor [@janitor] to clean the variable names and values. A subset of the key features is shown in table \@ref(tab:datafeatures).
+
+```{r datafeatures, echo=FALSE, message=FALSE}
+gss_data %>%
+  select(age, total_children, sex, province, marital_status, income_family) %>%
+  slice(1:10) %>%
+  kable(
+    caption = "Some key features",
+    col.names = c("Age of respondent", "Total number of children", "Sex", "Province", "Marital Status", "Family Income"),
+    digits = 1,
+    booktabs = TRUE, 
+    linesep = ""
+  ) %>%
+column_spec(1:2, width = "2.5cm")
 ```
 
-Talk more about it.
 
-Also bills and their average (Figure \@ref(fig:billssssss)). (Notice how you can change the height and width so they don't take the whole page?)
 
-```{r billssssss, fig.cap="More bills of penguins", echo = FALSE, fig.width=8, fig.height=4}
+## Strengths and weaknesses
 
-# This needs to be about the random data tha tI sasmpled?
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = FALSE) +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+```{r, include=FALSE}
+# Check missing values
+colSums(is.na(gss_data)) # https://stackoverflow.com/questions/24027605/determine-the-number-of-na-values-in-a-column
 ```
 
-Talk way more about it. 
-
-
-
-# Model
-
-\begin{equation}
-Pr(\theta | y) = \frac{Pr(y | \theta) Pr(\theta)}{Pr(y)}  (\#eq:bayes)
-\end{equation}
-
-Equation \@ref(eq:bayes) seems useful, eh?
-
-Here's a dumb example of how to use some references: In paper we run our analysis in `R` [@citeR]. We also use the `tidyverse` which was written by @thereferencecanbewhatever If we were interested in baseball data then @citeLahman could be useful. 
-
-We can use maths by including latex between dollar signs, for instance $\theta$.
-
+Some variables have several missing values.
 
 # Results
 
