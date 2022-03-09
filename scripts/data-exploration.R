@@ -20,6 +20,33 @@ library(tidyverse)
 raw_data <- read_csv("inputs/data/AAae9eTh.csv")
 gss_data <- read_csv("inputs/data/gss.csv")
 
+# Data wrangling for household
+household_data <- raw_data %>%
+  select(hsdsizec, famtype) %>%
+  mutate(household_size = case_when(hsdsizec == 6 ~ "6+",
+                                    TRUE ~ as.character(hsdsizec)), 
+         family_type = case_when(famtype == 1 ~ "Couple",
+                                 famtype == 2 ~ "Intact family*",
+                                 famtype == 3 ~ "Step-family with common child",
+                                 famtype == 4 ~ "Step-family without a common child",
+                                 famtype == 5 ~ "Single-parent family",
+                                 famtype == 6 ~ "No spouse/partner or children in the
+household"))
+
+# PLot for household size
+household_data %>%
+  ggplot(aes(x = household_size, fill = family_type)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set1") +
+  scale_y_continuous(breaks = seq(0, 8000, by = 1000)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(title = "Distribution of household size",
+       x = "Household size",
+       y = "Number of responses",
+       fill = "Family Type",
+       caption = "*Intact family = family in which both biological parents are present in the home.")
+
 # PLot for age of first child
 gss_data %>%
   select(age_first_child) %>%
@@ -33,12 +60,17 @@ gss_data %>%
        x = "Age of first child",
        y = "Number of responses")
 
+# Data wrangling for total number of children
+gss_data <- gss_data %>%
+  mutate(total_children1 = case_when(total_children == 7 ~ "7+",
+                                     TRUE ~ as.character(total_children)
+                                     ))
+
 # PLot for total number of children
 gss_data %>%
-  select(total_children) %>%
-  ggplot(aes(x = total_children)) +
+  select(total_children1) %>%
+  ggplot(aes(x = total_children1)) +
   geom_bar() +
-  scale_x_continuous(breaks = seq(0, 60, by = 1)) +
   scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
@@ -90,7 +122,7 @@ birth_place_data <- gss_data %>%
 birth_place_data %>%
   ggplot(aes(x = reorder(place_birth_province, n), fill = place_birth_parent)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
-  scale_y_continuous(limits = c(0, 4500), breaks = seq(0, 4500, by = 1000)) +
+  scale_y_continuous(limits = c(0, 4500), breaks = seq(0, 4500, by = 500)) +
   scale_fill_brewer(palette = "Set1") +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
