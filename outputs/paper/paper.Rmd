@@ -27,7 +27,12 @@ gss_data <- read_csv(here::here("inputs/data/gss.csv"))
 
 # Introduction
 
-You can and should cross-reference sections and sub-sections. For instance, Section \@ref(data). R Markdown automatically makes the sections lower case and adds a dash to spaces to generate labels, for instance, Section \@ref(first-discussion-point). 
+Canada’s General Social Survey (GSS) program is a series of independent, annual, cross sectional surveys on a variety of topics, such as families, caregiving and social identity, with each survey covering one topic in depth. As well as collecting information on the given topic, each survey also collects comprehensive socio-demographic data, recording respondents age, sex, education, religion, etc. Established in 1985, the GSS program was founded with 2 primary objectives:
+To gather data on social trends as they evolve over time, in order to monitor changes in the living conditions and lifestyle of Canadians, and
+To provide information on specific social policy issues of current or emerging interest
+In these regards, the GSS program has been largely successful, with GSS data often serving as evidence behind key government programs designed to improve the well-being of Canadians. As well, GSS data has also informed research about the social lives of Canadians, and continues to serve as a valuable training tool for quantitative and statistical methods in post-secondary institutions across the country (believe it or not). For these reasons, the GSS program serves an important and foundational role within Canada's national statistical system. 
+
+The General Social Survey on Family monitors trends and changes in Canadian families. Family is the single most important influence in a child's life; our family shapes our lives, influencing every aspect of our lives. Indeed, a strong, supportive family is the best and most foundational support a person can have. The GSS on Family aims to provide the government with an accurate picture of the diversity, demographics and trends of Canadian families. The data collected will help guide lawmakers in designing social programs and policies that will best serve the needs of millions of Canadian families. Hence, the GSS on Family is foundational in helping Canadian families, and therefore plays a key role in helping new Canadians have a healthy and functional support system. In this sense, the GSS is helping usher new generations of Canadians into as good a world as possible, and thus plays a critical role in the continued prosperity of Canada.
 
 Possible Research Questions:
 
@@ -49,7 +54,41 @@ Marriage & relationships
 
 The data was obtained from Canada's 2017 General Social Survey (GSS) on the Family. The survey was conducted during the period of February 2nd to November 30th 2017 by computer assisted telephone interviews of participants. The target population was all non-institutionalized persons ages 15 years and older in Canada, excluding residents of the Yukon, Northwest Territories, and Nunavut. Participants were chosen using stratified sampling by geographic area within the 10 provinces, with one person representing each household to be interviewed. The response rate was 52.4% with a total of 20,602 respondents.
 
-<!-- TODO: talk about the frame -->
+Data collected by the GSS is categorized further into 2 components; core content and classification variables. Core content consists of data designed to measure social trends and living conditions, as well as to inform specific policy issues. Examples of core content include questions such as "Are parents satisfied with the child care services they are receiving?" and "How many parents are taking leave for the birth of their child?" Classification variables on the other hand refer to the variables used to collect the aforementioned socio-demographic data. These include age, sex, religion and education of the respondent, and are used to help accurately portray respondent populations, with the goal of helping in the analysis of core content. Below is a brief outline of the questionnaire content on the 2017 GSS on Family:
+
+  - Entry component (respondent’s date of birth) 
+  - Family origins 
+  - Leaving the parental home 
+  - Conjugal history 
+  - Intentions and reasons to form a union 
+  - Respondent’s children 
+  - Fertility intentions 
+  - Maternity/parental leave 
+  - Organization and decision making within the household 
+  - Arrangements and financial support after a separation/divorce 
+  - Labour market new and education 
+  - Health and subjective well-being 
+  - Characteristics of respondent’s dwelling 
+  - Characteristics of respondent of spouse/partner
+
+
+## Survey Frame
+
+As previously mentioned, participants of this survey were chosen via stratified sampling wherein each province was divided into strata. Most Census Metropolitan Areas (CMAs) were considered separate strata, while the remaining CMAs were grouped together and divided into 3 separate strata. In total there were 27 strata used for sampling. 
+
+The survey frame was then created using 2 main components:
+Lists of telephone numbers, both home lines and cellular, that were available to Statistics Canada, and
+The Address Register (AR), a list of all the dwellings within the 10 provinces. 
+
+One person was surveyed per household; thus the Address Register was used to group together phone numbers by address. Approximately 86% of telephone numbers were linked to an address via the AR. These numbers, as well as the remaining 14% of unlinked numbers, were then combined to create the sampling frame. When multiple phone numbers were linked to the same address, these numbers were then sorted by type of number, with landlines first and cellular numbers last. The first number was then considered the best number to reach that household; recall that we want to survey households, not individuals, and so landlines were prioritized over cellular numbers. Note that as a result of the cellular surveying method, households without a telephone were excluded from the survey frame. 
+
+For the 2017 GSS, 91.8% of the selected telephone numbers reached eligible households. To be eligible, a household had to include at least one person 15 years of age or older. During collection, households that did not meet the eligibility criteria were terminated after an initial set of questions. A respondent was then randomly selected from each household to participate in a telephone interview.
+
+
+## Sampling Methods
+
+Each phone number / group of phone numbers (which we will henceforth refer to as “records”) was then sorted into its corresponding geographical strata, at which point a simple random sample without replacement was then performed on each strata. Approximately 91.8% of telephone numbers selected in the sample reached an eligible household (an eligible household being defined as a household that included at least one person 15 years of age or older). Data on households that did not meet the eligibility requirements was not included in the results, and phone calls with such households were terminated. 
+
 
 ## Key features
 
