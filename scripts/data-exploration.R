@@ -33,7 +33,7 @@ household_data <- raw_data %>%
                                  famtype == 6 ~ "No spouse/partner or children in the
 household"))
 
-# PLot for household size
+# Plot for household size
 household_data %>%
   ggplot(aes(x = household_size, fill = family_type)) +
   geom_bar() +
@@ -47,7 +47,7 @@ household_data %>%
        fill = "Family Type",
        caption = "*Intact family = family in which both biological parents are present in the home.")
 
-# PLot for age of first child
+# Plot for age of first child
 gss_data %>%
   select(age_first_child) %>%
   ggplot(aes(x = age_first_child)) +
@@ -66,7 +66,7 @@ gss_data <- gss_data %>%
                                      TRUE ~ as.character(total_children)
                                      ))
 
-# PLot for total number of children
+# Plot for total number of children
 gss_data %>%
   select(total_children1) %>%
   ggplot(aes(x = total_children1)) +
@@ -78,7 +78,7 @@ gss_data %>%
        x = "Number of children",
        y = "Number of responses")
 
-# PLot for age at first marriage
+# Plot for age at first marriage
 gss_data %>%
   select(age_at_first_marriage) %>%
   ggplot(aes(x = age_at_first_marriage)) +
@@ -91,7 +91,7 @@ gss_data %>%
        x = "Age at first marriage",
        y = "Number of responses")
 
-# PLot for age at first birth
+# Plot for age at first birth
 gss_data %>%
   select(age_at_first_birth) %>%
   ggplot(aes(x = age_at_first_birth)) +
@@ -115,10 +115,11 @@ birth_place_data <- gss_data %>%
                                           TRUE ~ place_birth_province)
          ) %>%
   mutate(place_birth_parent = factor(place_birth_parent, levels = c("Both parents born in Canada", "One parent born outside Canada", "Both parents born outside Canada", "NA"))) %>%
-  add_count(place_birth_province)
+  add_count(place_birth_province) %>% 
+  na.omit()
   
 
-# PLot for place of birth
+# Plot for place of birth
 birth_place_data %>%
   ggplot(aes(x = reorder(place_birth_province, n), fill = place_birth_parent)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
@@ -133,4 +134,146 @@ birth_place_data %>%
   coord_flip()
 
 
-#### What's next? ####
+#### What's next - Jacob? ####
+
+# Data wrangling for marital status
+marital_status_data <- gss_data %>%
+  select(marital_status) %>% 
+  add_count(marital_status) %>% 
+  na.omit()
+
+# Plot for marital status
+marital_status_data %>%
+  ggplot(aes(x = reorder(marital_status, n), fill = marital_status)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of marital status",
+       x = "Marital Status",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+# Data wrangling for education
+education_data <- gss_data %>%
+  select(education) %>% 
+  add_count(education) %>% 
+  na.omit()
+  
+# Plot for education
+education_data %>%
+  ggplot(aes(x = reorder(education, n), fill = education)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of education in the population",
+       x = "Education",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+
+# Data wrangling for income
+income_data <- gss_data %>%
+  select(income_family) %>% 
+  add_count(income_family) %>% 
+  na.omit()
+
+# Plot for income
+income_data %>%
+  ggplot(aes(x = reorder(income_family, n), fill = income_family)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of family income",
+       x = "Family Income",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+
+# Data wrangling for religion
+religion_data <- gss_data %>%
+  select(regilion_importance) %>% 
+  add_count(regilion_importance) %>% 
+  na.omit()
+
+# we can maybe look at religion importance for a subset of the population i.e.
+# location like "plot for place of birth"?
+# Plot for religion
+religion_data %>%
+  ggplot(aes(x = reorder(regilion_importance, n), fill = regilion_importance)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of Religion Importance",
+       x = "Religion Importance",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+
+# Data wrangling for hours worked
+hrs_worked_data <- gss_data %>%
+  select(average_hours_worked) %>% 
+  add_count(average_hours_worked) %>% 
+  na.omit()
+
+# we can maybe look at hrs worked for a subset of the population i.e.
+# location like "plot for place of birth"?
+# Plot for hours worked
+hrs_worked_data %>%
+  ggplot(aes(x = reorder(average_hours_worked, n), fill = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of average number of hours worked per week",
+       x = "Average number of hours worked per week",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+
+# Data wrangling for lang spoken
+lang_spoke_data <- gss_data %>%
+  select(language_home) %>% 
+  add_count(language_home) %>% 
+  na.omit()
+
+# Plot for lang spoken
+lang_spoke_data %>%
+  ggplot(aes(x = reorder(language_home, n), fill = language_home)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of language spoken in household",
+       x = "Language spoken in household",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+
+# Data wrangling for mental health
+mental_health_data <- gss_data %>%
+  select(self_rated_mental_health) %>% 
+  add_count(self_rated_mental_health) %>% 
+  na.omit()
+
+# Plot for mental health
+mental_health_data %>%
+  ggplot(aes(x = reorder(self_rated_mental_health, n), fill = self_rated_mental_health)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of self rated mental health",
+       x = "Self rated mental health",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
