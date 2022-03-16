@@ -4,7 +4,7 @@ subtitle: "My subtitle if needed"
 author: 
   - First author
   - Another author
-thanks: "Code and data are available at: LINK."
+thanks: "Code and data are available at: https://github.com/jmacattack27/General-Social-Survey-on-Family-2017- ."
 date: "`r format(Sys.time(), '%d %B %Y')`"
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
 output:
@@ -34,18 +34,15 @@ In these regards, the GSS program has been largely successful, with GSS data oft
 
 The General Social Survey on Family monitors trends and changes in Canadian families. Family is the single most important influence in a child's life; our family shapes our lives, influencing every aspect of our lives. Indeed, a strong, supportive family is the best and most foundational support a person can have. The GSS on Family aims to provide the government with an accurate picture of the diversity, demographics and trends of Canadian families. The data collected will help guide lawmakers in designing social programs and policies that will best serve the needs of millions of Canadian families. Hence, the GSS on Family is foundational in helping Canadian families, and therefore plays a key role in helping new Canadians have a healthy and functional support system. In this sense, the GSS is helping usher new generations of Canadians into as good a world as possible, and thus plays a critical role in the continued prosperity of Canada.
 
-Possible Research Questions:
+In this paper, we show a snapshot of what Canadian families look like using data from the 2017 General Social Survey on Family. Specifically, we address the following research questions:
 
-General Family
-
-- What do families in Canada look like? (in terms of marriage status, number of children, ethnic diversity and immigration and income, etc.)?
-- How does this differ by province/geographical region?
-
-Marriage & relationships
-
-- Do couples prefer marriage over common-law relationships? Is this related in any way to religious affiliation?
-- Do couples want to have children?
-- What is the rate of separation/divorce?
+- What are the most common family sizes and types (e.g. married couple, single-parent, etc.)?
+- Do most Canadians get married and how many children do they have?
+- What is distribution of education level of Canadians?
+- Are Canadian households mainly low-income, middle-income or high-income?
+- Which provinces have the most immigrant families?
+- Is religion important in Canadian families?
+- What is the mental health of Canadians like, and what factors may be related to this?
 
 
 # Data
@@ -117,7 +114,7 @@ column_spec(1:2, width = "2.5cm")
 colSums(is.na(gss_data)) # https://stackoverflow.com/questions/24027605/determine-the-number-of-na-values-in-a-column
 ```
 
-Some variables have several missing values.
+Strengths include that there is a large number of variables so there is a lot of opportunity for data exploration and research insights, and there is also a large number of observations for us to draw meaningful conclusions. A weakness includes that response categories for some of the questionnaire questions were collapsed in the code variables provided, for example mother tongue only lists English, French and non-official languages, and race of respondent became visible minority (yes/no), so we cannot comment on the full range of diverse responses.
 
 # Results
 
