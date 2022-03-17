@@ -20,6 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(kableExtra)
 library(patchwork)
+library(mapcan)
 
 # Read in data
 raw_data <- read_csv(here::here("inputs/data/AAae9eTh.csv"))
@@ -148,6 +149,7 @@ five_plus_households <- household_percents %>%
 
 ```
 
+## Household size and family types
 
 Figure \@ref(fig:householdsize) shows the distribution of household sizes with family type. The most common household sizes are 1 and 2-person, so Canadians generally live alone or in a romantic relationship. For household sizes greater than 2, they are mostly nuclear families, with 3-4 persons. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
 
@@ -193,7 +195,7 @@ zero_children <- child_percents %>%
 
 Figure \@ref(fig:numchildren) shows the distribution of the total number of children per family. Note that this is not *per household* i.e. persons living together, but the number of children ever had by the respondent of the household. The two tallest bars of nearly equal height are for 0 and 2 children, followed by 1 and 3 children also being similar in frequency, but about half as much as for 0 and 2. Thus, `r round(zero_children$total_percent,2)`% Canadians do not have any children and those who do usually have 1-3 children. 
 
-```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of total number of children per family"}
+```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of total number of children per family"}
 # Plot for total number of children
 child_data %>%
   select(total_children1) %>%
@@ -207,41 +209,209 @@ child_data %>%
        y = "Number of responses")
 ```
 
-Figure \@ref(fig:agemarbirth) shows the distributions of the age of respondents when they first got married and had children.
+
+```{r agemarbirthwrangling, include=FALSE, message=FALSE, warning=FALSE}
+have_children <- gss_data %>%
+  filter(total_children > 0)
+
+married_at_least_once <- gss_data %>%
+  filter(marital_status != "Single, never married")
+
+# Count the number of people who get married and don't have children
+married_no_children <- gss_data %>%
+  filter(marital_status != "Single, never married", total_children == 0) %>%
+  summarise(n = n()/nrow(married_at_least_once))
+  
+# Count the number of people who have children and don't get married
+children_no_married <- gss_data %>%
+  filter(marital_status == "Single, never married", total_children > 0) %>%
+  summarise(n = n()/nrow(have_children))
+
+# Count the number of people who neither get married nor have children
+
+```
+
+
+Figure \@ref(fig:agemarbirth) shows the distributions of the age of respondents when they first got married and had children, as well as the number of years between their first marriage and their first child. For first marriage, a lot of the density of the distribution lies between 20-30 years, with a peak at about 21 years. For first birth, the density mainly lies between 18-35 years, with the peak at 25 years. Both distributions are right-skewed. This is expected for first birth since women reach menopause at ages 45-50 [(National Institute on Aging, 2021)](https://www.nia.nih.gov/health/what-menopause).
+
+`r round(100 *married_no_children$n, 2)`% of people who were ever married do not have any children, and `r round(100 *children_no_married$n, 2)`% of people who have children were never married. For those persons who get married and have kids, plot A of Figure \@ref(fig:agemarbirth) shows that the majority of Canadians bear children within the first 10 years of their first marriage, with 1 year of marriage being the most frequent occasion for giving birth.
 
 ```{r agemarbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of ages at marriage and birth"}
 # Plot for age at first marriage
 marriage_plot<- gss_data %>%
-  # mutate(age_at_first_marriage = round(age_at_first_marriage)) %>%
+  mutate(age_at_first_marriage = floor(age_at_first_marriage)) %>%
   select(age_at_first_marriage) %>%
   ggplot(aes(x = age_at_first_marriage)) +
-  geom_histogram(bins = 65, fill = "#E41A1C") +
-  scale_x_continuous(limits = c(15, 50),breaks = seq(0, 50, by = 10)) +
-  scale_y_continuous(limits = c(0, 600),breaks = seq(0, 800, by = 100)) +
+  geom_bar(width = 0.95, fill = "#E41A1C") +
+  scale_x_continuous(limits = c(15, 50), breaks = c(15, seq(0, 50, by = 10))) +
+  scale_y_continuous(limits = c(0, 1000),breaks = seq(0, 1000, by = 200)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "A. Distribution of age at first marriage",
+  labs(title = "B. Distribution of age at first\n    marriage",
        x = "Age at first marriage",
-       y = "Number of responses")
+       y = "")
 
 # Plot for age at first birth
 first_birth_plot <- gss_data %>%
-  # mutate(age_at_first_birth = round(age_at_first_birth)) %>%
+  mutate(age_at_first_birth = floor(age_at_first_birth)) %>%
   select(age_at_first_birth) %>%
   ggplot(aes(x = age_at_first_birth)) +
-  geom_histogram(bins = 65, fill = "#4DAF4A") +
- scale_x_continuous(limits = c(15, 50), breaks = seq(0, 50, by = 10)) +
-  scale_y_continuous(limits = c(0, 600),breaks = seq(0, 800, by = 100)) +
+  geom_bar(widh = 0.95, fill = "#4DAF4A") +
+  scale_x_continuous(limits = c(15, 50), breaks = c(18, 45, seq(0, 50, by = 10))) +
+  scale_y_continuous(limits = c(0, 1000),breaks = seq(0, 1000, by = 200)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "B. Distribution of age at first birth",
+  labs(title = "C. Distribution of age at first birth",
        x = "Age at first birth",
+       y = "")
+
+# Plot years between marriage and birth
+mar_and_birth <- gss_data %>% 
+  mutate(age_at_first_marriage = floor(age_at_first_marriage), 
+         age_at_first_birth = floor(age_at_first_birth)) %>% 
+  mutate(years_btwn_mar_birth = age_at_first_birth - age_at_first_marriage) %>%
+  group_by(years_btwn_mar_birth) %>% 
+  summarise(n = n()) 
+
+mar_birth_plot <- mar_and_birth %>%
+  ggplot(aes(x = years_btwn_mar_birth, y = n)) + 
+  geom_bar(stat = "identity", width = 0.95, fill = "#984EA3") +
+  scale_x_continuous(limits = c(-29, 26),
+                     breaks = seq(-30, 25, by = 5)) +
+  scale_y_continuous(limits = c(0, 1100),breaks = seq(0, 1100, by = 100)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(title = "A. Distribution of years between\n    marriage and birth",
+       x = "Age at first birth - Age at first marriage",
        y = "Number of responses")
 
-marriage_plot / first_birth_plot
+
+mar_birth_plot + (marriage_plot / first_birth_plot)
 
 ```
 
+## Place of birth and Immigration
+
+```{r placeofbirthwrangling, echo=FALSE, message=FALSE, warning=FALSE}
+
+# number of people born in Canada
+num_people_born_in_canada <- gss_data %>%
+  filter(place_birth_canada == "Born in Canada") %>%
+  summarise(n = n()/nrow(gss_data))
+
+```
+
+
+Figure \@ref(fig:placeofbirth) shows the distribution of respondent's province of birth. Although `r 100*round(num_people_born_in_canada$n,2)`% of Canadians in our sample were born in Canada, the number of individuals born outside Canada is greater than the number of individuals born in any one of the provinces. As expected, the vast majority of these persons' parents were also born outside of Canada. Within Canada, the most common provinces of birth are Ontario and Quebec. 
+
+The provinces with the largest [second generation](https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=117200&CVD=117200&CLV=0&MLV=1&D=1) families (person born in Canada with one or more parents born outside Canada) are Ontario, British Colombia, Quebec, Alberta, Saskatchewan and Manitoba. In figure \@ref(fig:maplocation), we also see that first generation families (person and parents all born outside Canada) mainly settled in the same provinces as the second generation immigrants.
+
+```{r placeofbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of persons by place of birth"}
+
+# Data wrangling for place of birth
+birth_place_data <- gss_data %>%
+  select(place_birth_canada, place_birth_father, place_birth_mother, place_birth_province) %>%
+  mutate(place_birth_parent = case_when(place_birth_father == "Born outside Canada" & place_birth_mother == "Born outside Canada" ~ "Both born outside Canada",
+                                        place_birth_father == "Born outside Canada" | place_birth_mother == "Born outside Canada" ~ "One born outside Canada",
+                                        place_birth_father == "Born in Canada" & place_birth_mother == "Born in Canada" ~ "Both born in Canada",
+                                        TRUE ~ "NA"),
+         place_birth_province = case_when(place_birth_canada == "Born outside Canada" ~ "Outside Canada",
+                                          TRUE ~ place_birth_province)
+         ) %>%
+  mutate(place_birth_parent = factor(place_birth_parent, levels = c("Both born in Canada", "One born outside Canada", "Both born outside Canada", "NA"))) %>%
+  add_count(place_birth_province) %>% 
+  na.omit()
+
+birth_place_data <- birth_place_data %>%
+  mutate(place_birth_province = str_replace(place_birth_province, "Northwest", "NW"))
+  
+
+# Plot for place of birth
+birth_place_data %>%
+  ggplot(aes(x = reorder(place_birth_province, n), fill = place_birth_parent)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 4500), breaks = seq(0, 4500, by = 1000)) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), 
+        panel.grid.minor.y = element_blank(), 
+        legend.position = "bottom", legend.key.width = unit(5, "mm")) +
+  guides(fill=guide_legend(nrow=2, byrow=TRUE)) + # https://datavizpyr.com/fold-legend-into-two-rows-in-ggplot2/
+  labs(x = "Place of birth",
+       y = "Number of responses",
+       fill = "Birth place\nof parents") +
+  coord_flip()
+
+```
+
+
+
+```{r maplocation, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of immigrants currently residing in Canada by province"}
+
+immigrant_settled <- gss_data %>%
+  filter(place_birth_canada == "Born outside Canada", place_birth_father == "Born outside Canada", place_birth_mother == "Born outside Canada") %>%
+  group_by(province) %>%
+  summarise(n = n())
+
+# Code from https://cran.r-project.org/web/packages/mapcan/vignettes/choropleth_maps_vignette.html
+pr_geographic <- mapcan(boundaries = province,
+       type = standard)
+
+pr_geographic <- full_join(pr_geographic, 
+           immigrant_settled, 
+           by = c("pr_english" = "province")) %>%
+  mutate(n = replace_na(n, 0))
+
+# graph labels
+map_labels <- pr_geographic %>%
+  group_by(pr_english) %>%
+  summarise(mid_lat = mean(lat), mid_long = mean(long))
+
+# fix position of certain labels #https://stackoverflow.com/questions/14782206/how-do-i-change-a-single-value-in-a-data-frame
+map_labels[1, 3] = map_labels[1, 3] + 250000
+map_labels[2, 3] = map_labels[2, 3] + 250000
+map_labels[12, 3] = map_labels[12, 3] - 150000
+map_labels[1, 2] = map_labels[1, 2] + 250000
+map_labels[9, 2] = map_labels[9, 2] + 250000
+map_labels[11, 3] = map_labels[11, 3] - 250000
+
+pr_geographic <- inner_join(pr_geographic, map_labels, by = "pr_english")
+
+# plot map
+pr_geographic %>%
+  ggplot(aes(x = long, y = lat, group = group, fill = n)) +
+  geom_polygon() +
+  coord_fixed() +
+  theme_mapcan() +
+  scale_fill_viridis_c(name = "Number of immigrants") +
+  geom_text(aes(label = pr_alpha, x = mid_long, y = mid_lat))
+
+```
+
+Figure \@ref(fig:immigrantsarrival) shows the years that respondents who were born outside of Canada reported arriving in Canada and where they hailed from. Notably the population of Europeans made up the largest proportion of immigrants and was at its largest amount during the period 1946-1959, but then decreased to almost a constant number from about 1970 onwards. In contrast, the population of Asian immigrants has been increasing steadily up to 2014 and it has comprised the largest subsection of immigrants since about 1985. The number of immigrants from Africa and the Americas has not changed too significantly, but the years 2000-2014 saw a boom in immigration from these groups together with Asian immigrants.
+
+```{r immigrantsarrival, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of immigrants' country of origin by year"}
+
+country_origin <- gss_data %>%
+  filter(place_birth_canada == "Born outside Canada") %>%
+  select(place_birth_macro_region, year_arrived_canada) %>%
+  mutate(year_arrived_canada = str_remove(year_arrived_canada, "Arrived between ")) %>%
+  mutate(year_arrived_canada = fct_relevel(year_arrived_canada, "Arrived before 1946", after = 0))
+
+country_origin %>%
+  ggplot(aes(x = year_arrived_canada, fill = place_birth_macro_region)) +
+  geom_bar() +
+  scale_y_continuous(limits = c(0, 600), breaks = seq(0, 600, by = 100)) +
+  scale_fill_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(angle = 50, hjust=1)) + # https://stackoverflow.com/questions/1330989/rotating-and-spacing-axis-labels-in-ggplot2
+  labs(x = "Year Arrived in Canada",
+       y = "Number of responses",
+       fill = "Country of Origin")
+
+```
 
 
 # Discussion
