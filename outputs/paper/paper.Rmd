@@ -19,8 +19,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load libraries
 library(tidyverse)
 library(kableExtra)
+library(patchwork)
 
 # Read in data
+raw_data <- read_csv(here::here("inputs/data/AAae9eTh.csv"))
 gss_data <- read_csv(here::here("inputs/data/gss.csv"))
 
 ```
@@ -117,6 +119,130 @@ colSums(is.na(gss_data)) # https://stackoverflow.com/questions/24027605/determin
 Strengths include that there is a large number of variables so there is a lot of opportunity for data exploration and research insights, and there is also a large number of observations for us to draw meaningful conclusions. A weakness includes that response categories for some of the questionnaire questions were collapsed in the code variables provided, for example mother tongue only lists English, French and non-official languages, and race of respondent became visible minority (yes/no), so we cannot comment on the full range of diverse responses.
 
 # Results
+
+```{r householdwrangling, include=FALSE, message=FALSE, warning=FALSE}
+
+# Data wrangling for household
+household_data <- raw_data %>%
+  select(hsdsizec, famtype) %>%
+  mutate(household_size = case_when(hsdsizec == 6 ~ "6+",
+                                    TRUE ~ as.character(hsdsizec)), 
+         family_type = case_when(famtype == 1 ~ "Couple",
+                                 famtype == 2 ~ "Intact family*",
+                                 famtype == 3 ~ "Step-family with common child",
+                                 famtype == 4 ~ "Step-family without a common child",
+                                 famtype == 5 ~ "Single-parent family",
+                                 famtype == 6 ~ "No spouse/partner or children in the
+household"))
+
+# get percents of each household size
+household_percents <- household_data %>%
+  group_by(household_size) %>%
+  summarise(percent = 100*n()/nrow(household_data))
+
+# 5+ people in a houshold percentage
+five_plus_households <- household_percents %>%
+  filter(household_size >= 5) %>%
+  select(percent) %>%
+  summarise(total_percent = sum(percent))
+
+```
+
+
+Figure \@ref(fig:householdsize) shows the distribution of household sizes with family type. The most common household sizes are 1 and 2-person, so Canadians generally live alone or in a romantic relationship. For household sizes greater than 2, they are mostly nuclear families, with 3-4 persons. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
+
+```{r householdsize, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of family type by household size"}
+
+# Plot for household size
+household_data %>%
+  ggplot(aes(x = household_size, fill = family_type)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set1") +
+  scale_y_continuous(breaks = seq(0, 8000, by = 1000)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(x = "Household size",
+       y = "Number of responses",
+       fill = "Family Type",
+       caption = "*Intact family = family in which both biological\nparents are present in the home.")
+
+
+```
+
+## Marriage and Children
+
+```{r numchildrenwrangling, include=FALSE, message=FALSE, warning=FALSE}
+
+# Data wrangling for total number of children
+child_data <- gss_data %>%
+  mutate(total_children1 = case_when(total_children == 7 ~ "7+",
+                                     TRUE ~ as.character(total_children)
+                                     ))
+# get percents of each number
+child_percents <- child_data %>%
+  group_by(total_children1) %>%
+  summarise(percent = 100*n()/nrow(child_data))
+
+# 5+ people in a houshold percentage
+zero_children <- child_percents %>%
+  filter(total_children1 == 0) %>%
+  select(percent) %>%
+  summarise(total_percent = sum(percent))
+
+```
+
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children per family. Note that this is not *per household* i.e. persons living together, but the number of children ever had by the respondent of the household. The two tallest bars of nearly equal height are for 0 and 2 children, followed by 1 and 3 children also being similar in frequency, but about half as much as for 0 and 2. Thus, `r round(zero_children$total_percent,2)`% Canadians do not have any children and those who do usually have 1-3 children. 
+
+```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of total number of children per family"}
+# Plot for total number of children
+child_data %>%
+  select(total_children1) %>%
+  ggplot(aes(x = total_children1)) +
+  geom_bar(fill = "#377EB8") +
+  scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(title = "Distribution of total number of children per family",
+       x = "Number of children",
+       y = "Number of responses")
+```
+
+Figure \@ref(fig:agemarbirth) shows the distributions of the age of respondents when they first got married and had children.
+
+```{r agemarbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of ages at marriage and birth"}
+# Plot for age at first marriage
+marriage_plot<- gss_data %>%
+  # mutate(age_at_first_marriage = round(age_at_first_marriage)) %>%
+  select(age_at_first_marriage) %>%
+  ggplot(aes(x = age_at_first_marriage)) +
+  geom_histogram(bins = 65, fill = "#E41A1C") +
+  scale_x_continuous(limits = c(15, 50),breaks = seq(0, 50, by = 10)) +
+  scale_y_continuous(limits = c(0, 600),breaks = seq(0, 800, by = 100)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(title = "A. Distribution of age at first marriage",
+       x = "Age at first marriage",
+       y = "Number of responses")
+
+# Plot for age at first birth
+first_birth_plot <- gss_data %>%
+  # mutate(age_at_first_birth = round(age_at_first_birth)) %>%
+  select(age_at_first_birth) %>%
+  ggplot(aes(x = age_at_first_birth)) +
+  geom_histogram(bins = 65, fill = "#4DAF4A") +
+ scale_x_continuous(limits = c(15, 50), breaks = seq(0, 50, by = 10)) +
+  scale_y_continuous(limits = c(0, 600),breaks = seq(0, 800, by = 100)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(title = "B. Distribution of age at first birth",
+       x = "Age at first birth",
+       y = "Number of responses")
+
+marriage_plot / first_birth_plot
+
+```
+
+
 
 # Discussion
 
