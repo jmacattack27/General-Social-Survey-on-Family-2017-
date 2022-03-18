@@ -159,11 +159,10 @@ marital_status_data %>%
 education_data <- gss_data %>%
   select(education, age) %>%
   filter(age >= 30) %>% 
-  mutate(age_grp = case_when(age >= 30 & age < 40 ~ "30-40",
-                             place_birth_mother == "Born outside Canada" ~ "Both parents born outside Canada",
+  mutate(place_birth_mother == "Born outside Canada" ~ "Both parents born outside Canada",
                                         place_birth_father == "Born outside Canada" | place_birth_mother == "Born outside Canada" ~ "One parent born outside Canada",
                                         place_birth_father == "Born in Canada" & place_birth_mother == "Born in Canada" ~ "Both parents born in Canada",
-                                        TRUE ~ "NA")) %>% 
+                                        TRUE ~ "NA") %>% 
   na.omit()
   
 # Plot for education
@@ -177,28 +176,28 @@ education_data %>%
        y = "Number of responses") +
   scale_fill_brewer(palette = "Set1")
 
-
 # Data wrangling for income
 income_data <- gss_data %>%
-  select(income_family) %>%
+  select(income_family, hh_size) %>%
   mutate(income_family = factor(income_family, levels = c("Less than $25,000", "$25,000 to $49,999", 
                                                           "$50,000 to $74,999", 
                                                           "$75,000 to $99,999", 
                                                           "$100,000 to $ 124,999", 
-                                                          "$125,000 and more"))) %>% 
+                                                          "$125,000 and more")),
+         hh_size = as.factor(hh_size)) %>% 
   add_count(income_family) %>% 
   na.omit()
 
 # Plot for income
 income_data %>%
-  ggplot(aes(x = income_family, fill = income_family)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  ggplot(aes(x = income_family, fill = hh_size)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
-  labs(title = "Distribution of family income",
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(title = "Distribution of family income for various household sizes",
        x = "Family Income",
-       y = "Number of responses") +
+       y = "Number of responses",
+       fill = "Household size") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 
@@ -249,39 +248,52 @@ hrs_worked_data %>%
 
 # Data wrangling for lang spoken
 lang_spoke_data <- gss_data %>%
-  select(language_home) %>% 
+  select(language_home, province) %>% 
   add_count(language_home) %>% 
   na.omit()
 
 # Plot for lang spoken
 lang_spoke_data %>%
-  ggplot(aes(x = reorder(language_home, n), fill = language_home)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  ggplot(aes(x = reorder(province, n), fill = language_home)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
-  labs(title = "Distribution of language spoken in household",
-       x = "Language spoken in household",
-       y = "Number of responses") +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(title = "Distribution of language spoken in household between provinces",
+       x = "Province",
+       y = "Number of responses",
+       fill = "Language spoken in household") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 
 
 # Data wrangling for mental health
 mental_health_data <- gss_data %>%
-  select(self_rated_mental_health) %>% 
+  select(self_rated_mental_health, age) %>% 
+  mutate(self_rated_mental_health = factor(self_rated_mental_health, 
+                                           levels = c("Don't know", "Poor", "Fair",
+                                                      "Good", "Very good", "Excellent")),
+         age_grp = case_when(age < 20 ~ "< 20",
+                             age >= 20 & age < 30 ~ "20-30",
+                             age >= 30 & age < 40 ~ "30-40",
+                             age >= 40 & age < 50 ~ "40-50",
+                             age >= 50 & age < 60 ~ "50-60",
+                             age >= 60 & age < 70 ~ "60-70",
+                             age >= 70 & age < 80 ~ "70-80",
+                             age >= 80 ~ ">= 80")) %>% 
   add_count(self_rated_mental_health) %>% 
   na.omit()
 
 # Plot for mental health
 mental_health_data %>%
-  ggplot(aes(x = reorder(self_rated_mental_health, n), fill = self_rated_mental_health)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  ggplot(aes(x = self_rated_mental_health, fill = age_grp)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
   labs(title = "Distribution of self rated mental health",
        x = "Self rated mental health",
-       y = "Number of responses") +
+       y = "Number of responses", 
+       fill = "Age groups") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
+
+
