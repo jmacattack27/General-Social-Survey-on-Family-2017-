@@ -2,8 +2,9 @@
 title: "My title"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-  - Another author
+  - Kimlin Chin
+  - Jack McKay
+  - Jacob Yoke Hong Si
 thanks: "Code and data are available at: https://github.com/jmacattack27/General-Social-Survey-on-Family-2017- ."
 date: "`r format(Sys.time(), '%d %B %Y')`"
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -15,29 +16,28 @@ bibliography: references.bib
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 # Load libraries
+#install.packages('patchwork')
+#install.packages('mapcan')
 library(tidyverse)
 library(kableExtra)
 library(patchwork)
 library(mapcan)
-
 # Read in data
 raw_data <- read_csv(here::here("inputs/data/AAae9eTh.csv"))
 gss_data <- read_csv(here::here("inputs/data/gss.csv"))
-
 ```
 
 # Introduction
 
 Canada’s General Social Survey (GSS) program is a series of independent, annual, cross sectional surveys on a variety of topics, such as families, caregiving and social identity, with each survey covering one topic in depth. As well as collecting information on the given topic, each survey also collects comprehensive socio-demographic data, recording respondents age, sex, education, religion, etc. Established in 1985, the GSS program was founded with 2 primary objectives:
-To gather data on social trends as they evolve over time, in order to monitor changes in the living conditions and lifestyle of Canadians, and
+To gather data on social trends as they evolve over time, in order to monitor changes in the living conditions and lifestyle of Canadians, and 
 To provide information on specific social policy issues of current or emerging interest
 In these regards, the GSS program has been largely successful, with GSS data often serving as evidence behind key government programs designed to improve the well-being of Canadians. As well, GSS data has also informed research about the social lives of Canadians, and continues to serve as a valuable training tool for quantitative and statistical methods in post-secondary institutions across the country (believe it or not). For these reasons, the GSS program serves an important and foundational role within Canada's national statistical system. 
 
 The General Social Survey on Family monitors trends and changes in Canadian families. Family is the single most important influence in a child's life; our family shapes our lives, influencing every aspect of our lives. Indeed, a strong, supportive family is the best and most foundational support a person can have. The GSS on Family aims to provide the government with an accurate picture of the diversity, demographics and trends of Canadian families. The data collected will help guide lawmakers in designing social programs and policies that will best serve the needs of millions of Canadian families. Hence, the GSS on Family is foundational in helping Canadian families, and therefore plays a key role in helping new Canadians have a healthy and functional support system. In this sense, the GSS is helping usher new generations of Canadians into as good a world as possible, and thus plays a critical role in the continued prosperity of Canada.
 
-In this paper, we show a snapshot of what Canadian families look like using data from the 2017 General Social Survey on Family. Specifically, we address the following research questions:
+In this paper, we view a snapshot of what Canadian families look like using data from the 2017 General Social Survey on Family. Specifically, we address the following research questions:
 
 - What are the most common family sizes and types (e.g. married couple, single-parent, etc.)?
 - Do most Canadians get married and how many children do they have?
@@ -48,7 +48,7 @@ In this paper, we show a snapshot of what Canadian families look like using data
 - What is the mental health of Canadians like, and what factors may be related to this?
 
 
-# Data
+# Datadd
 
 ## Data Source and Methodology
 
@@ -81,8 +81,6 @@ Lists of telephone numbers, both home lines and cellular, that were available to
 The Address Register (AR), a list of all the dwellings within the 10 provinces. 
 
 One person was surveyed per household; thus the Address Register was used to group together phone numbers by address. Approximately 86% of telephone numbers were linked to an address via the AR. These numbers, as well as the remaining 14% of unlinked numbers, were then combined to create the sampling frame. When multiple phone numbers were linked to the same address, these numbers were then sorted by type of number, with landlines first and cellular numbers last. The first number was then considered the best number to reach that household; recall that we want to survey households, not individuals, and so landlines were prioritized over cellular numbers. Note that as a result of the cellular surveying method, households without a telephone were excluded from the survey frame. 
-
-For the 2017 GSS, 91.8% of the selected telephone numbers reached eligible households. To be eligible, a household had to include at least one person 15 years of age or older. During collection, households that did not meet the eligibility criteria were terminated after an initial set of questions. A respondent was then randomly selected from each household to participate in a telephone interview.
 
 
 ## Sampling Methods
@@ -117,12 +115,11 @@ column_spec(1:2, width = "2.5cm")
 colSums(is.na(gss_data)) # https://stackoverflow.com/questions/24027605/determine-the-number-of-na-values-in-a-column
 ```
 
-Strengths include that there is a large number of variables so there is a lot of opportunity for data exploration and research insights, and there is also a large number of observations for us to draw meaningful conclusions. A weakness includes that response categories for some of the questionnaire questions were collapsed in the code variables provided, for example mother tongue only lists English, French and non-official languages, and race of respondent became visible minority (yes/no), so we cannot comment on the full range of diverse responses.
+As with any statistical study, this survey has both strengths and weaknesses. Some of the strengths include the multitude of variables as well as the large sample size. Many variables provide ample opportunity for data exploration and research insights, while the large number of observations allow us to draw meaningful conclusions. One of the weaknesses of the survey is that the response categories for some of the survey questions were collapsed in the provided code; for example, 'mother tongue' only lists English, French and non-official languages, and 'race of respondent' was collapsed to visible minority (yes/no). In doing this, some data was lost, and as such we can make less inferences on the diversity of the responses.
 
 # Results
 
 ```{r householdwrangling, include=FALSE, message=FALSE, warning=FALSE}
-
 # Data wrangling for household
 household_data <- raw_data %>%
   select(hsdsizec, famtype) %>%
@@ -135,26 +132,22 @@ household_data <- raw_data %>%
                                  famtype == 5 ~ "Single-parent family",
                                  famtype == 6 ~ "No spouse/partner or children in the
 household"))
-
 # get percents of each household size
 household_percents <- household_data %>%
   group_by(household_size) %>%
   summarise(percent = 100*n()/nrow(household_data))
-
 # 5+ people in a houshold percentage
 five_plus_households <- household_percents %>%
   filter(household_size >= 5) %>%
   select(percent) %>%
   summarise(total_percent = sum(percent))
-
 ```
 
-## Household size and family types
+## Household Size and Family Types
 
-Figure \@ref(fig:householdsize) shows the distribution of household sizes with family type. The most common household sizes are 1 and 2-person, so Canadians generally live alone or in a romantic relationship. For household sizes greater than 2, they are mostly nuclear families, with 3-4 persons. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
+Figure \@ref(fig:householdsize) shows the distribution of Canadian households grouped by household size, based on what type of family they are. Note that an intact family refers to a now-married of common law couple, where all of the children have both parents, biological or adoptive, living in the household. Similarly, a step-family refers to such a couple where at least one of the children is in a step-relationship with at least one of the parents. Here we see that the majority of households consiste of only 1 or 2 people. From this we can infer that a large portion of Canadians either live alone or with either a partner or roommate. For household sizes greater than 2, the vast majority consist of intact families, with most families having 1 or 2 children. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
 
-```{r householdsize, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of family type by household size"}
-
+```{r householdsize, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Family Type by Household Size"}
 # Plot for household size
 household_data %>%
   ggplot(aes(x = household_size, fill = family_type)) +
@@ -163,18 +156,17 @@ household_data %>%
   scale_y_continuous(breaks = seq(0, 8000, by = 1000)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(x = "Household size",
+  labs(title = "Makeup of Canadian Families",
+       x = "Household size",
        y = "Number of responses",
        fill = "Family Type",
-       caption = "*Intact family = family in which both biological\nparents are present in the home.")
-
-
+       caption = "*Intact family = family in which both biological\nparents are present in the home.") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ## Marriage and Children
 
 ```{r numchildrenwrangling, include=FALSE, message=FALSE, warning=FALSE}
-
 # Data wrangling for total number of children
 child_data <- gss_data %>%
   mutate(total_children1 = case_when(total_children == 7 ~ "7+",
@@ -184,18 +176,16 @@ child_data <- gss_data %>%
 child_percents <- child_data %>%
   group_by(total_children1) %>%
   summarise(percent = 100*n()/nrow(child_data))
-
 # 5+ people in a houshold percentage
 zero_children <- child_percents %>%
   filter(total_children1 == 0) %>%
   select(percent) %>%
   summarise(total_percent = sum(percent))
-
 ```
 
-Figure \@ref(fig:numchildren) shows the distribution of the total number of children per family. Note that this is not *per household* i.e. persons living together, but the number of children ever had by the respondent of the household. The two tallest bars of nearly equal height are for 0 and 2 children, followed by 1 and 3 children also being similar in frequency, but about half as much as for 0 and 2. Thus, `r round(zero_children$total_percent,2)`% Canadians do not have any children and those who do usually have 1-3 children. 
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children per respondent. Note that this is not *per household* i.e. persons living together, but rather is the number of children had by the respondent of the household throughout their lifetime. Here we see that the majority of respondents either had 0 children or 2, with almost an identical number of respondents with 0 children as there are with 2. Similarly, the number of respondents with 1 child is very close to the number of those with 3. Thus, we note that about `r round(zero_children$total_percent,2)`%of Canadians do not have any children, and those who do usually have 1-3 children. 
 
-```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of total number of children per family"}
+```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Total Number of Children per Respondent"}
 # Plot for total number of children
 child_data %>%
   select(total_children1) %>%
@@ -204,19 +194,18 @@ child_data %>%
   scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "Distribution of total number of children per family",
-       x = "Number of children",
-       y = "Number of responses")
+  labs(title = "Total Number of Children per Respondent",
+       x = "Number of Children",
+       y = "Number of Responses") +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 
 ```{r agemarbirthwrangling, include=FALSE, message=FALSE, warning=FALSE}
 have_children <- gss_data %>%
   filter(total_children > 0)
-
 married_at_least_once <- gss_data %>%
   filter(marital_status != "Single, never married")
-
 # Count the number of people who get married and don't have children
 married_no_children <- gss_data %>%
   filter(marital_status != "Single, never married", total_children == 0) %>%
@@ -226,17 +215,15 @@ married_no_children <- gss_data %>%
 children_no_married <- gss_data %>%
   filter(marital_status == "Single, never married", total_children > 0) %>%
   summarise(n = n()/nrow(have_children))
-
 # Count the number of people who neither get married nor have children
-
 ```
 
 
-Figure \@ref(fig:agemarbirth) shows the distributions of the age of respondents when they first got married and had children, as well as the number of years between their first marriage and their first child. For first marriage, a lot of the density of the distribution lies between 20-30 years, with a peak at about 21 years. For first birth, the density mainly lies between 18-35 years, with the peak at 25 years. Both distributions are right-skewed. This is expected for first birth since women reach menopause at ages 45-50 [(National Institute on Aging, 2021)](https://www.nia.nih.gov/health/what-menopause).
+Figure \@ref(fig:agemarbirth) graphs the distributions of the age of respondents when they first got married and when they first had children, as well as the number of years between their first marriage and their first child. For first marriage, the majority of responses lie between 20-30 years, with a peak at around 21 years. For first birth, the bulk of responses were between 20 and 35 years of age, with the peak at 25 years. Notably, the distribution is almost uniform between 20 and 30 years. The distributions for first marriage and first child are both are right-skewed. This is to be expected, as the likelihood of getting married would intuitively increase drastically as one approaches 20, and drop off gradually past 30. A similar trend is to be expected with first birthes, as women first become fertile around puberty, and generally reach menopause at 45-50 years [(National Institute on Aging, 2021)](https://www.nia.nih.gov/health/what-menopause).
 
-`r round(100 *married_no_children$n, 2)`% of people who were ever married do not have any children, and `r round(100 *children_no_married$n, 2)`% of people who have children were never married. For those persons who get married and have kids, plot A of Figure \@ref(fig:agemarbirth) shows that the majority of Canadians bear children within the first 10 years of their first marriage, with 1 year of marriage being the most frequent occasion for giving birth.
+`r round(100 *married_no_children$n, 2)`% of people who were ever married do not have any children, and `r round(100 *children_no_married$n, 2)`% of people who have children were never married. For those persons who get married and have kids, plot A of Figure \@ref(fig:agemarbirth) shows that the majority of Canadians bear children within the first 10 years of their first marriage, with by far the most married births occurring within 1 year of marriage.
 
-```{r agemarbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of ages at marriage and birth"}
+```{r agemarbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Ages at Marriage and Birth"}
 # Plot for age at first marriage
 marriage_plot<- gss_data %>%
   mutate(age_at_first_marriage = floor(age_at_first_marriage)) %>%
@@ -247,10 +234,9 @@ marriage_plot<- gss_data %>%
   scale_y_continuous(limits = c(0, 1000),breaks = seq(0, 1000, by = 200)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "B. Distribution of age at first\n    marriage",
-       x = "Age at first marriage",
+  labs(title = "B. Distribution of Age at First\n    Marriage",
+       x = "Age at First Marriage",
        y = "")
-
 # Plot for age at first birth
 first_birth_plot <- gss_data %>%
   mutate(age_at_first_birth = floor(age_at_first_birth)) %>%
@@ -261,10 +247,9 @@ first_birth_plot <- gss_data %>%
   scale_y_continuous(limits = c(0, 1000),breaks = seq(0, 1000, by = 200)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "C. Distribution of age at first birth",
-       x = "Age at first birth",
+  labs(title = "C. Distribution of Age at First Birth",
+       x = "Age at First Birth",
        y = "")
-
 # Plot years between marriage and birth
 mar_and_birth <- gss_data %>% 
   mutate(age_at_first_marriage = floor(age_at_first_marriage), 
@@ -272,7 +257,6 @@ mar_and_birth <- gss_data %>%
   mutate(years_btwn_mar_birth = age_at_first_birth - age_at_first_marriage) %>%
   group_by(years_btwn_mar_birth) %>% 
   summarise(n = n()) 
-
 mar_birth_plot <- mar_and_birth %>%
   ggplot(aes(x = years_btwn_mar_birth, y = n)) + 
   geom_bar(stat = "identity", width = 0.95, fill = "#984EA3") +
@@ -281,33 +265,26 @@ mar_birth_plot <- mar_and_birth %>%
   scale_y_continuous(limits = c(0, 1100),breaks = seq(0, 1100, by = 100)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "A. Distribution of years between\n    marriage and birth",
-       x = "Age at first birth - Age at first marriage",
-       y = "Number of responses")
-
-
+  labs(title = "A. Distribution of Years between\n    Marriage and Birth",
+       x = "Age at First Birth - Age at First Marriage",
+       y = "Number of Responses")
 mar_birth_plot + (marriage_plot / first_birth_plot)
-
 ```
 
-## Place of birth and Immigration
+## Place of Birth and Immigration
 
 ```{r placeofbirthwrangling, echo=FALSE, message=FALSE, warning=FALSE}
-
 # number of people born in Canada
 num_people_born_in_canada <- gss_data %>%
   filter(place_birth_canada == "Born in Canada") %>%
   summarise(n = n()/nrow(gss_data))
-
 ```
 
+Figure \@ref(fig:placeofbirth) shows the distribution of respondent's province of birth, as well as distribution of respondents' parents' birth place, the latter distribution only looking at whether the parents were born inside or outside of Canada. Although `r 100*round(num_people_born_in_canada$n,2)`% of Canadians in our sample were born in Canada, the number of individuals born outside Canada is greater than the number of individuals born in any individual province. As expected, the vast majority of these persons' parents were also born outside of Canada. Within Canada, the most common provinces of birth are Ontario and Quebec. Notably, despite a similar number of respondents being born in Ontario and Quebec, respondents born in Ontario are more than twice as likely to have one or more parents born outside of Canada. 
 
-Figure \@ref(fig:placeofbirth) shows the distribution of respondent's province of birth. Although `r 100*round(num_people_born_in_canada$n,2)`% of Canadians in our sample were born in Canada, the number of individuals born outside Canada is greater than the number of individuals born in any one of the provinces. As expected, the vast majority of these persons' parents were also born outside of Canada. Within Canada, the most common provinces of birth are Ontario and Quebec. 
+The provinces with the largest population of [second generation](https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=117200&CVD=117200&CLV=0&MLV=1&D=1) Canadians--defined as a person born in Canada with one or more parents born outside Canada--are Ontario, British Colombia, Quebec, Alberta, Saskatchewan and Manitoba. In figure \@ref(fig:maplocation), we see that first generation Canadians--defined as a person with both parents born outside Canada) mainly settled in the same provinces as the second generation immigrants. Notably, provinces on the east coast such as Nova Scotia and New Brunswick are almost entirely comprised of third generation Canadians, or Canadians born in Canada with both parents also born in Canada. 
 
-The provinces with the largest [second generation](https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=117200&CVD=117200&CLV=0&MLV=1&D=1) families (person born in Canada with one or more parents born outside Canada) are Ontario, British Colombia, Quebec, Alberta, Saskatchewan and Manitoba. In figure \@ref(fig:maplocation), we also see that first generation families (person and parents all born outside Canada) mainly settled in the same provinces as the second generation immigrants.
-
-```{r placeofbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of persons by place of birth"}
-
+```{r placeofbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Persons by Place of Birth"}
 # Data wrangling for place of birth
 birth_place_data <- gss_data %>%
   select(place_birth_canada, place_birth_father, place_birth_mother, place_birth_province) %>%
@@ -321,11 +298,9 @@ birth_place_data <- gss_data %>%
   mutate(place_birth_parent = factor(place_birth_parent, levels = c("Both born in Canada", "One born outside Canada", "Both born outside Canada", "NA"))) %>%
   add_count(place_birth_province) %>% 
   na.omit()
-
 birth_place_data <- birth_place_data %>%
   mutate(place_birth_province = str_replace(place_birth_province, "Northwest", "NW"))
   
-
 # Plot for place of birth
 birth_place_data %>%
   ggplot(aes(x = reorder(place_birth_province, n), fill = place_birth_parent)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
@@ -337,36 +312,29 @@ birth_place_data %>%
         panel.grid.minor.y = element_blank(), 
         legend.position = "bottom", legend.key.width = unit(5, "mm")) +
   guides(fill=guide_legend(nrow=2, byrow=TRUE)) + # https://datavizpyr.com/fold-legend-into-two-rows-in-ggplot2/
-  labs(x = "Place of birth",
-       y = "Number of responses",
-       fill = "Birth place\nof parents") +
+  labs(x = "Place of Birth",
+       y = "Number of Responses",
+       fill = "Birth Place\nof Parents") +
   coord_flip()
-
 ```
 
 
-
-```{r maplocation, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of immigrants currently residing in Canada by province"}
-
+```{r maplocation, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Immigrants Currently Residing in Canada by Province"}
 immigrant_settled <- gss_data %>%
   filter(place_birth_canada == "Born outside Canada", place_birth_father == "Born outside Canada", place_birth_mother == "Born outside Canada") %>%
   group_by(province) %>%
   summarise(n = n())
-
 # Code from https://cran.r-project.org/web/packages/mapcan/vignettes/choropleth_maps_vignette.html
 pr_geographic <- mapcan(boundaries = province,
        type = standard)
-
 pr_geographic <- full_join(pr_geographic, 
            immigrant_settled, 
            by = c("pr_english" = "province")) %>%
   mutate(n = replace_na(n, 0))
-
 # graph labels
 map_labels <- pr_geographic %>%
   group_by(pr_english) %>%
   summarise(mid_lat = mean(lat), mid_long = mean(long))
-
 # fix position of certain labels #https://stackoverflow.com/questions/14782206/how-do-i-change-a-single-value-in-a-data-frame
 map_labels[1, 3] = map_labels[1, 3] + 250000
 map_labels[2, 3] = map_labels[2, 3] + 250000
@@ -374,30 +342,25 @@ map_labels[12, 3] = map_labels[12, 3] - 150000
 map_labels[1, 2] = map_labels[1, 2] + 250000
 map_labels[9, 2] = map_labels[9, 2] + 250000
 map_labels[11, 3] = map_labels[11, 3] - 250000
-
 pr_geographic <- inner_join(pr_geographic, map_labels, by = "pr_english")
-
 # plot map
 pr_geographic %>%
   ggplot(aes(x = long, y = lat, group = group, fill = n)) +
   geom_polygon() +
   coord_fixed() +
   theme_mapcan() +
-  scale_fill_viridis_c(name = "Number of immigrants") +
+  scale_fill_viridis_c(name = "Number of Immigrants") +
   geom_text(aes(label = pr_alpha, x = mid_long, y = mid_lat))
-
 ```
 
-Figure \@ref(fig:immigrantsarrival) shows the years that respondents who were born outside of Canada reported arriving in Canada and where they hailed from. Notably the population of Europeans made up the largest proportion of immigrants and was at its largest amount during the period 1946-1959, but then decreased to almost a constant number from about 1970 onwards. In contrast, the population of Asian immigrants has been increasing steadily up to 2014 and it has comprised the largest subsection of immigrants since about 1985. The number of immigrants from Africa and the Americas has not changed too significantly, but the years 2000-2014 saw a boom in immigration from these groups together with Asian immigrants.
+Figure \@ref(fig:immigrantsarrival) shows the years that respondents who were born outside of Canada reported arriving in Canada, as well as where they hailed from. Notably the population of Europeans made up the largest proportion of immigrants and was at its largest amount during the period 1946-1959, but then decreased to almost a constant number from about 1970 onwards. In contrast, the population of Asian immigrants has been increasing steadily up to 2014 and it has comprised the largest subsection of immigrants since about 1985. The number of immigrants from Africa and the Americas has not changed too significantly, but the years 2000-2014 saw a boom in immigration from these groups together with Asian immigrants.
 
 ```{r immigrantsarrival, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of immigrants' country of origin by year"}
-
 country_origin <- gss_data %>%
   filter(place_birth_canada == "Born outside Canada") %>%
   select(place_birth_macro_region, year_arrived_canada) %>%
   mutate(year_arrived_canada = str_remove(year_arrived_canada, "Arrived between ")) %>%
   mutate(year_arrived_canada = fct_relevel(year_arrived_canada, "Arrived before 1946", after = 0))
-
 country_origin %>%
   ggplot(aes(x = year_arrived_canada, fill = place_birth_macro_region)) +
   geom_bar() +
@@ -410,7 +373,6 @@ country_origin %>%
   labs(x = "Year Arrived in Canada",
        y = "Number of responses",
        fill = "Country of Origin")
-
 ```
 
 
@@ -442,5 +404,4 @@ Weaknesses and next steps should also be included.
 
 
 # References
-
 
