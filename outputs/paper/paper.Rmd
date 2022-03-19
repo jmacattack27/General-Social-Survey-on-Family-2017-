@@ -41,7 +41,6 @@ In this paper, we view a snapshot of what Canadian families look like using data
 
 - What are the most common family sizes and types (e.g. married couple, single-parent, etc.)?
 - Do most Canadians get married and how many children do they have?
-- What is distribution of education level of Canadians?
 - Are Canadian households mainly low-income, middle-income or high-income?
 - Which provinces have the most immigrant families?
 - Is religion important in Canadian families?
@@ -53,6 +52,42 @@ In this paper, we view a snapshot of what Canadian families look like using data
 ## Data Source and Methodology
 
 The data was obtained from Canada's 2017 General Social Survey (GSS) on the Family. The survey was conducted during the period of February 2nd to November 30th 2017 by computer assisted telephone interviews of participants. The target population was all non-institutionalized persons ages 15 years and older in Canada, excluding residents of the Yukon, Northwest Territories, and Nunavut. Participants were chosen using stratified sampling by geographic area within the 10 provinces, with one person representing each household to be interviewed. The response rate was 52.4% with a total of 20,602 respondents.
+
+The age distribution of respondents is shown in figure \@ref(fig:agesrespondents).
+
+```{r agesrespondents, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Respondents' Ages"}
+
+# add labels for 5-year age groups
+five_year_groupings <- raw_data %>%
+  mutate(age_group_5 = case_when(agegr5 == 1 ~ "15 to 19 years",
+                                 agegr5 == 2 ~ "20 to 24 years",
+                                 agegr5 == 3 ~ "25 to 29 years",
+                                 agegr5 == 4 ~ "30 to 34 years",
+                                 agegr5 == 5 ~ "35 to 39 years",
+                                 agegr5 == 6 ~ "40 to 44 years",
+                                 agegr5 == 7 ~ "45 to 49 years",
+                                 agegr5 == 8 ~ "50 to 54 years",
+                                 agegr5 == 9 ~ "55 to 59 years",
+                                 agegr5 == 10 ~ "60 to 64 years",
+                                 agegr5 == 11 ~ "65 to 69 years",
+                                 agegr5 == 12 ~ "70 to 74 years",
+                                 agegr5 == 13 ~ "75 to 79 years",
+                                 agegr5 == 14 ~ "80 years and over"))
+
+# Plot for total number of children
+five_year_groupings %>%
+  ggplot(aes(x = age_group_5)) +
+  geom_bar() +
+  # scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(angle = 50, hjust=1)) +
+  labs(title = "Distribution of respondents' ages",
+       x = "Five-year Age groups",
+       y = "Number of responses")
+
+```
+
 
 Data collected by the GSS is categorized further into 2 components; core content and classification variables. Core content consists of data designed to measure social trends and living conditions, as well as to inform specific policy issues. Examples of core content include questions such as "Are parents satisfied with the child care services they are receiving?" and "How many parents are taking leave for the birth of their child?" Classification variables on the other hand refer to the variables used to collect the aforementioned socio-demographic data. These include age, sex, religion and education of the respondent, and are used to help accurately portray respondent populations, with the goal of helping in the analysis of core content. Below is a brief outline of the questionnaire content on the 2017 GSS on Family:
 
@@ -165,6 +200,29 @@ household_data %>%
 ```
 
 ## Marriage and Children
+
+```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of marital status"}
+
+# Data wrangling for marital status
+marital_status_data <- gss_data %>%
+  select(marital_status) %>% 
+  add_count(marital_status) %>% 
+  na.omit()
+
+# Plot for marital status
+marital_status_data %>%
+  ggplot(aes(x = reorder(marital_status, n))) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar(fill = "#4DAF4A") +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of marital status",
+       x = "Marital Status",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+```
 
 ```{r numchildrenwrangling, include=FALSE, message=FALSE, warning=FALSE}
 # Data wrangling for total number of children
@@ -375,6 +433,148 @@ country_origin %>%
        fill = "Country of Origin")
 ```
 
+```{r langspoken, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of languages by province"}
+
+# Data wrangling for lang spoken
+lang_spoke_data <- gss_data %>%
+  select(language_home, province) %>% 
+  add_count(language_home) %>% 
+  na.omit()
+
+# Plot for lang spoken
+lang_spoke_data %>%
+  ggplot(aes(x = reorder(province, n), fill = language_home)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(title = "Distribution of language spoken in household between provinces",
+       x = "Province",
+       y = "Number of responses",
+       fill = "Language spoken in household") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+```
+
+
+## Family Income
+
+
+```{r income, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of income"}
+
+# Data wrangling for income
+income_data <- gss_data %>%
+  select(income_family, hh_size) %>%
+  mutate(income_family = factor(income_family, levels = c("Less than $25,000", "$25,000 to $49,999", 
+                                                          "$50,000 to $74,999", 
+                                                          "$75,000 to $99,999", 
+                                                          "$100,000 to $ 124,999", 
+                                                          "$125,000 and more")),
+         hh_size = as.factor(hh_size)) %>% 
+  add_count(income_family) %>% 
+  na.omit()
+
+# Plot for income
+income_data %>%
+  ggplot(aes(x = income_family, fill = hh_size)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(title = "Distribution of family income for various household sizes",
+       x = "Family Income",
+       y = "Number of responses",
+       fill = "Household size") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+```
+
+```{r hoursworked, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of hours worked"}
+
+# Data wrangling for hours worked
+hrs_worked_data <- gss_data %>%
+  select(average_hours_worked) %>% 
+  add_count(average_hours_worked) %>% 
+  na.omit()
+
+# we can maybe look at hrs worked for a subset of the population i.e.
+# location like "plot for place of birth"?
+# Plot for hours worked
+hrs_worked_data %>%
+  ggplot(aes(x = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of average number of hours worked per week",
+       x = "Average number of hours worked per week",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+```
+
+## Religion
+
+```{r religion, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of religion"}
+
+# Data wrangling for religion
+religion_data <- gss_data %>%
+  select(regilion_importance) %>% 
+  add_count(regilion_importance) %>% 
+  na.omit()
+
+# we can maybe look at religion importance for a subset of the population i.e.
+# location like "plot for place of birth"?
+# Plot for religion
+religion_data %>%
+  ggplot(aes(x = reorder(regilion_importance, n), fill = regilion_importance)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
+        legend.position = "none") +
+  labs(title = "Distribution of Religion Importance",
+       x = "Religion Importance",
+       y = "Number of responses") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+```
+
+## Mental Health
+
+```{r mentalhealth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of mental health"}
+
+# Data wrangling for mental health
+mental_health_data <- gss_data %>%
+  select(self_rated_mental_health, age) %>% 
+  mutate(self_rated_mental_health = factor(self_rated_mental_health, 
+                                           levels = c("Don't know", "Poor", "Fair",
+                                                      "Good", "Very good", "Excellent")),
+         age_grp = case_when(age < 20 ~ "< 20",
+                             age >= 20 & age < 30 ~ "20-30",
+                             age >= 30 & age < 40 ~ "30-40",
+                             age >= 40 & age < 50 ~ "40-50",
+                             age >= 50 & age < 60 ~ "50-60",
+                             age >= 60 & age < 70 ~ "60-70",
+                             age >= 70 & age < 80 ~ "70-80",
+                             age >= 80 ~ ">= 80")) %>% 
+  add_count(self_rated_mental_health) %>% 
+  na.omit()
+
+# Plot for mental health
+mental_health_data %>%
+  ggplot(aes(x = self_rated_mental_health, fill = age_grp)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  geom_bar() +
+  theme_minimal() +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(title = "Distribution of self rated mental health",
+       x = "Self rated mental health",
+       y = "Number of responses", 
+       fill = "Age groups") +
+  scale_fill_brewer(palette = "Set1") +
+  coord_flip()
+
+```
 
 # Discussion
 
