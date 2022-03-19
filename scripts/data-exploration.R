@@ -146,13 +146,8 @@ birth_place_data <- gss_data %>%
   mutate(place_birth_parent = factor(place_birth_parent, levels = c("Both parents born in Canada", "One parent born outside Canada", "Both parents born outside Canada", "NA"))) %>%
   add_count(place_birth_province) %>% 
   na.omit()
-<<<<<<< HEAD
 
 
-=======
-  
-
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
 # Plot for place of birth
 birth_place_data %>%
   ggplot(aes(x = reorder(place_birth_province, n), fill = place_birth_parent)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
@@ -191,24 +186,6 @@ marital_status_data %>%
 
 # Data wrangling for education
 education_data <- gss_data %>%
-<<<<<<< HEAD
-  select(education) %>% 
-  add_count(education) %>% 
-  na.omit()
-
-# Plot for education
-education_data %>%
-  ggplot(aes(x = reorder(education, n), fill = education)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-  geom_bar() +
-  theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
-  labs(title = "Distribution of education in the population",
-       x = "Education",
-       y = "Number of responses") +
-  scale_fill_brewer(palette = "Set1") +
-  coord_flip()
-=======
   select(education, age) %>%
   filter(age >= 30) %>% 
   mutate(place_birth_mother == "Born outside Canada" ~ "Both parents born outside Canada",
@@ -227,43 +204,22 @@ education_data %>%
        x = "Education",
        y = "Number of responses") +
   scale_fill_brewer(palette = "Set1")
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
 
 # Data wrangling for income
 income_data <- gss_data %>%
-<<<<<<< HEAD
   select(income_family, hh_size) %>%
-=======
-<<<<<<< HEAD
-  select(income_family) %>% 
-=======
-  select(income_family) %>%
->>>>>>> 49d553bfa760231cd02354b8c3ec9697da4d6cd5
   mutate(income_family = factor(income_family, levels = c("Less than $25,000", "$25,000 to $49,999", 
                                                           "$50,000 to $74,999", 
                                                           "$75,000 to $99,999", 
                                                           "$100,000 to $ 124,999", 
-<<<<<<< HEAD
                                                           "$125,000 and more")),
          hh_size = as.factor(hh_size)) %>% 
-=======
-                                                          "$125,000 and more"))) %>% 
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
->>>>>>> 49d553bfa760231cd02354b8c3ec9697da4d6cd5
   add_count(income_family) %>% 
   na.omit()
 
 # Plot for income
 income_data %>%
-<<<<<<< HEAD
   ggplot(aes(x = income_family, fill = hh_size)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-=======
-<<<<<<< HEAD
-  ggplot(aes(x = reorder(income_family, n), fill = income_family)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-=======
-  ggplot(aes(x = income_family, fill = income_family)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
->>>>>>> 49d553bfa760231cd02354b8c3ec9697da4d6cd5
   geom_bar() +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
@@ -307,11 +263,7 @@ hrs_worked_data <- gss_data %>%
 # location like "plot for place of birth"?
 # Plot for hours worked
 hrs_worked_data %>%
-<<<<<<< HEAD
-  ggplot(aes(x = reorder(average_hours_worked, n), fill = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-=======
   ggplot(aes(x = average_hours_worked, fill = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
   geom_bar() +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
@@ -372,12 +324,3 @@ mental_health_data %>%
        fill = "Age groups") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
-<<<<<<< HEAD
-
-
-=======
-<<<<<<< HEAD
-
-=======
->>>>>>> 3fe1827e43162f7bf0307dcee9b306f4470ca051
->>>>>>> 49d553bfa760231cd02354b8c3ec9697da4d6cd5
