@@ -20,6 +20,35 @@ library(tidyverse)
 raw_data <- read_csv("inputs/data/AAae9eTh.csv")
 gss_data <- read_csv("inputs/data/gss.csv")
 
+# add labels for 5-year age groups
+five_year_groupings <- raw_data %>%
+  mutate(age_group_5 = case_when(agegr5 == 1 ~ "15 to 19 years",
+                                 agegr5 == 2 ~ "20 to 24 years",
+                                 agegr5 == 3 ~ "25 to 29 years",
+                                 agegr5 == 4 ~ "30 to 34 years",
+                                 agegr5 == 5 ~ "35 to 39 years",
+                                 agegr5 == 6 ~ "40 to 44 years",
+                                 agegr5 == 7 ~ "45 to 49 years",
+                                 agegr5 == 8 ~ "50 to 54 years",
+                                 agegr5 == 9 ~ "55 to 59 years",
+                                 agegr5 == 10 ~ "60 to 64 years",
+                                 agegr5 == 11 ~ "65 to 69 years",
+                                 agegr5 == 12 ~ "70 to 74 years",
+                                 agegr5 == 13 ~ "75 to 79 years",
+                                 agegr5 == 14 ~ "80 years and over"))
+
+# Plot for total number of children
+five_year_groupings %>%
+  ggplot(aes(x = age_group_5)) +
+  geom_bar() +
+  # scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
+        axis.text.x = element_text(angle = 50, hjust=1)) +
+  labs(title = "Distribution of respondents' ages",
+       x = "Five-year Age groups",
+       y = "Number of responses")
+
 # Data wrangling for household
 household_data <- raw_data %>%
   select(hsdsizec, famtype) %>%
