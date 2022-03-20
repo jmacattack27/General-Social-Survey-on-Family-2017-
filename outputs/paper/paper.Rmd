@@ -1,13 +1,13 @@
 ---
-title: "My title"
-subtitle: "My subtitle if needed"
+title: "Say Cheese! A Snapshot of Canadian Family Demographics"
+subtitle: "An analysis of insights from Canada's 2017 General Social Survey on Family"
 author: 
   - Kimlin Chin
   - Jack McKay
   - Jacob Yoke Hong Si
 thanks: "Code and data are available at: https://github.com/jmacattack27/General-Social-Survey-on-Family-2017- ."
 date: "`r format(Sys.time(), '%d %B %Y')`"
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+abstract: "What does family look like in Canada? Using data from the 2017 Canadian General Social Survey (GSS) on Family, we take a look at this picture through the lens of family size and type, marriage and children, place of origin, income, religion and mental health. We found that most families are small, well-off and in good mental health, and that immigrants make up about one fifth of the population, settling in the larger cities and adding diversity in ethnicity and languages to the family scene. We also discuss possible factors that may have influenced this family image, including Canada's investment in family planning and immigration levels planning."
 output:
   bookdown::pdf_document2
 toc: FALSE
@@ -125,7 +125,7 @@ Each phone number / group of phone numbers (which we will henceforth refer to as
 
 ## Key features
 
-The raw data includes 461 variables which were derived from the questionnaire responses. Some key features included age, sex, place of birth, marriage, ethnic diversity and immigration, education, work, income, children, religion, family structure, geographic location, household size and living arrangements. We used R [@citeR] and R packages tidyverse [@tidy] and janitor [@janitor] to clean the variable names and values. A subset of the key features is shown in table \@ref(tab:datafeatures).
+The raw data includes 461 variables which were derived from the questionnaire responses. Some key features included age, sex, place of birth, marriage, ethnic diversity and immigration, education, work, income, children, religion, family structure, geographic location, household size and living arrangements. We used R [@citeR] and R packages tidyverse [@tidy] and janitor [@janitor] to clean the variable names and values. A subset of the key features is shown in table \@ref(tab:datafeatures), which was made using R package kableExtra [@kableExtra].
 
 ```{r datafeatures, echo=FALSE, message=FALSE}
 gss_data %>%
@@ -153,6 +153,8 @@ colSums(is.na(gss_data)) # https://stackoverflow.com/questions/24027605/determin
 As with any statistical study, this survey has both strengths and weaknesses. Some of the strengths include the multitude of variables as well as the large sample size. Many variables provide ample opportunity for data exploration and research insights, while the large number of observations allow us to draw meaningful conclusions. One of the weaknesses of the survey is that the response categories for some of the survey questions were collapsed in the provided code; for example, 'mother tongue' only lists English, French and non-official languages, and 'race of respondent' was collapsed to visible minority (yes/no). In doing this, some data was lost, and as such we can make less inferences on the diversity of the responses.
 
 # Results
+
+The graphs were made using R [@citeR] and R packages tidyverse [@tidy], patchwork [@patchwork] and mapcan [@mapcan].
 
 ```{r householdwrangling, include=FALSE, message=FALSE, warning=FALSE}
 # Data wrangling for household
@@ -201,7 +203,7 @@ household_data %>%
 
 ## Marriage and Children
 
-```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of marital status"}
+```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of marital status"}
 
 # Data wrangling for marital status
 marital_status_data <- gss_data %>%
@@ -213,11 +215,11 @@ marital_status_data <- gss_data %>%
 marital_status_data %>%
   ggplot(aes(x = reorder(marital_status, n))) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar(fill = "#4DAF4A") +
+  scale_y_continuous(limits=c(0, 10000), breaks = seq(0, 10000, by = 2000)) +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
         legend.position = "none") +
-  labs(title = "Distribution of marital status",
-       x = "Marital Status",
+  labs(x = "Marital Status",
        y = "Number of responses") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
@@ -433,24 +435,25 @@ country_origin %>%
        fill = "Continent of Origin")
 ```
 
-```{r langspoken, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of languages by province"}
+```{r langspoken, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of language spoken in houshold by province"}
 
 # Data wrangling for lang spoken
 lang_spoke_data <- gss_data %>%
   select(language_home, province) %>% 
   add_count(language_home) %>% 
-  na.omit()
+  na.omit() %>%
+  mutate(language_home = str_replace(language_home, " language", ""))
 
 # Plot for lang spoken
 lang_spoke_data %>%
   ggplot(aes(x = reorder(province, n), fill = language_home)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
-  labs(title = "Distribution of language spoken in household between provinces",
-       x = "Province",
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(),
+        legend.position = "bottom") +
+  labs(x = "Province",
        y = "Number of responses",
-       fill = "Language spoken in household") +
+       fill = "Language\nspoken in\nhousehold") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 ```
@@ -469,7 +472,8 @@ income_data <- gss_data %>%
                                                           "$75,000 to $99,999", 
                                                           "$100,000 to $ 124,999", 
                                                           "$125,000 and more")),
-         hh_size = as.factor(hh_size)) %>% 
+         hh_size = case_when(hh_size == 6 ~ "6+",
+                              TRUE ~ as.character(hh_size))) %>% 
   add_count(income_family) %>% 
   na.omit()
 
@@ -479,8 +483,7 @@ income_data %>%
   geom_bar() +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
-  labs(title = "Distribution of Family Income for Various Household Sizes",
-       x = "Family Income",
+  labs(x = "Family Income",
        y = "Number of Responses",
        fill = "Household Size") +
   scale_fill_brewer(palette = "Set1") +
@@ -527,7 +530,7 @@ religion_data <- gss_data %>%
 # location like "plot for place of birth"?
 # Plot for religion
 religion_data %>%
-  ggplot(aes(x = reorder(regilion_importance, n), fill = regilion_importance)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  ggplot(aes(x = reorder(regilion_importance, n))) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
@@ -579,11 +582,6 @@ mental_health_data %>%
 
 # Discussion
 
-## Mental Health
-
-The topic of the Canadian General Social Survey in 2017 was family; it aimed to capture as much information as possible about the structure of Canadian families, with the goal of understanding and monitoring the evolution of families over time. This information can then be used to guide social and fiscal policies so that they may best serve the current needs and wants of Canadian families. As well, the survey provides a glimpse at how well current policies are serving Canadians. For example, question SRH_Q115 asked "In general, would you say your mental health is...?" with respondents choosing one of "Don't Know, Poor, Fair, Good, Very Good and Excellent". The distribution of these responses is exhibited in Figure (insert the abt mental health). Very notably, the vast majority of respondents rated their mental health as "Good", "Very Good" or "Excellent", with an exceedingly small proportion of people answer "Poor". As well, Figure (insert the abt mental health) also shows the distribution of the age of respondents for each answer, in which we see nearly identical proportions of people of all age groups for each answer. This means that not only are Canadians happy in general, but also that this happiness is not skewed towards certain age groups, as we had originally hypothesized. It must be made note of that this survey was conducted in 2017 and thus conducted pre-pandemic. As such, this graph likely does not provide us with an accurate picture of the current sentiments of Canadians. As well, by virtue of the survey not being mandatory for chosen respondents to complete, there is likely an intrinsic sampling bias towards people with better mental health; some of the defining symptoms of poor mental health include tiredness, lack of energy and a lack of initiative. As such, people with poor mental health would be inherently less likely to voluntarily complete a survey. 
-
-
 ## Family Planning
 
 Canada has always been committed to having strong family planning and sexual and reproductive health (SRH) services. In 2017, Global Affairs Canada -- a branch of the Canadian government -- dedicated CA$650 million over the next 3 years towards promoting the sexual and reproductive health and rights of women and girls (cite). In 2015, Canada committed CA\$3.5 billion towards maternal, newborn and child health, including improving SRH services and information. This strong foothold in the realm of family planning is reflected in this survey in a number of ways. For example, Figure \@ref(fig:householdsize) showcases the distribution of the size of Canadian households, broken down by what type of family lives in that household. Here we see that the majority of households only consist of 1 or 2 people, followed by households containing 3 or 4 people, of which there were a very similar amount. Notably, there is a steep drop-off in frequency of households larger than 4 people, with about a third as many 5-person households as there are 3 or 4-person, and less than a sixth as many households containing 6 or more people. This is likely a reflection of Canada's ample family planning resources leading couples more likely to opt for 1 or 2 children, thus keeping the average household size low. Figure \@ref(fig:numchildren) shows the distribution of the total number of children had by respondents. Interestingly, we see that by far the most frequent responses are 0 children and 2 children, of which there were a nearly identical number of responses. This means that once a couple has one child, they are then more likely to opt to have another child. This seemingly conflicts with Figure \@ref(fig:householdsize), which showed that 3-person households were just as common as 4-person households. There could be a couple reasons for these seemingly disjoint results. The firstly, relative to the general population, a high proportion of elderly people were surveyed. As elderly people are unlikely to still be living with their children, this would naturally lower the average household size without affecting the average number of children. As well, members of the same household are not necessarily parents or children, nor even family members. For example, a small proportion of 3-person households consist of couples. As these households are classified as couples and not intact families, this entails that the 3rd member of the household is not one of the couple's children. In Figure \@ref(fig:householdsize) we also see that aside from 0 and 2, 1 and 3 are both by far the next most common responses, with about 2900 respondents having 1 child and 3200 having 3. This also goes to show that Canada's continued investments into SRH and family planning services have been effective in keeping reproductive rates healthy and sustainable on both an individual and aggregate level. 
@@ -592,6 +590,10 @@ Canada has always been committed to having strong family planning and sexual and
 ## Immigration
 
 Canada has a strong track record when it comes to immigration, boasting one of the highest naturalization rates in the world, with about 85% of newcomers eventually becoming citizens. Figure \@ref(fig:placeofbirth) shows the distribution of the birth place of the respondents parents, grouped by the respondent's province or territory of birth. Here we see that for respondents born in Canada, Ontario has by far the greatest amount of second generation Canadians, with about 30% of Canadians born in Ontario having at least one parent born outside of Canada. British Columbia has a similarly high proportion of second generation Canadians, followed by Alberta, Manitoba and Saskatchewan, each of which has a similar proportion. This is to be expected, as the 2 main hotbeds of immigration in Canada, Toronto and Vancouver, are the capital cities of Ontario and BC respectively. Notably, provinces on the east coast such as New Brunswick, Newfoundland, Nova Scotia and Prince Edward Island all have exceedingly low rates of immigration. While there could be cultural and societal causes for this lack of Atlantic immigration, the most obvious cause would be the general rurality of the provinces; in general, immigrants tend to settle down in urban areas, largely due to the economic and societal opportunities that present themselves in big cities. This is evident in Canada, where immigrants flock to large urban centers such as Toronto, Vancouver and Montreal. Provinces on the Atlantic are far less urbanized than Ontario or BC, and as such immigrants are less likely to settle down in them. Figure \@ref(fig:maplocation) shows a density map of where immigrants currently reside in Canada, supplementing the previous figure. Here we again see that Ontario has by far the most immigrants of any province, followed by British Columbia. It's worth noting that this map only shows the number of immigrants residing in each province, as opposed to the proportion. So while Ontario has far more immigrants than BC, they in fact have a similar proportion of immigrants in their population. Figure \@ref(fig:immigrantsarrival) shows how many immigrants arrived in Canada over 5 year periods since 1946, as well as which continent they were immigrating from. Here we see a sharp increase in the number of immigrants arriving in Canada since 2000, with that number continuing to trend upwards. This coincides with the ongoing efforts by the Canadian government to drive immigration rates up, which is one of the key ways that Canada aims to combat the economic decline driven by its aging population. Increasing immigration rates allows for a new inflow of young and eligible workers into the country, bolstering Canada's workforce and stimulating the economy. Another noticeable trend shown in Figure \@ref(fig:immigrantsarrival) is the increasing rate at which immigrants are hailing from Asia, which has been increasing continuously since 1964 but most noticeably exploded in the early 1980s. This increase coincides with the Early 1980s Recession experienced by Canada, as well as the drastic economic growth China began to experience in the early 1980s and continue to today. Other trends include the increasing rate of African immigrants, and the decreasing rate of European immigrants, with European immigrants making up the smallest proportion of immigrants since 2010. Despite the proportion of European immigrants decreasing, the actual number of European immigrant respondents has remained steady since 1975, meaning that this drop in proportion is more likely related to the drastically increasing amount of Asian immigrants than it is a decreasing propensity for Europeans to immigrate to Canada.
+
+## Mental Health
+
+The topic of the Canadian General Social Survey in 2017 was family; it aimed to capture as much information as possible about the structure of Canadian families, with the goal of understanding and monitoring the evolution of families over time. This information can then be used to guide social and fiscal policies so that they may best serve the current needs and wants of Canadian families. As well, the survey provides a glimpse at how well current policies are serving Canadians. For example, question SRH_Q115 asked "In general, would you say your mental health is...?" with respondents choosing one of "Don't Know, Poor, Fair, Good, Very Good and Excellent". The distribution of these responses is exhibited in Figure (insert the abt mental health). Very notably, the vast majority of respondents rated their mental health as "Good", "Very Good" or "Excellent", with an exceedingly small proportion of people answer "Poor". As well, Figure (insert the abt mental health) also shows the distribution of the age of respondents for each answer, in which we see nearly identical proportions of people of all age groups for each answer. This means that not only are Canadians happy in general, but also that this happiness is not skewed towards certain age groups, as we had originally hypothesized. It must be made note of that this survey was conducted in 2017 and thus conducted pre-pandemic. As such, this graph likely does not provide us with an accurate picture of the current sentiments of Canadians. As well, by virtue of the survey not being mandatory for chosen respondents to complete, there is likely an intrinsic sampling bias towards people with better mental health; some of the defining symptoms of poor mental health include tiredness, lack of energy and a lack of initiative. As such, people with poor mental health would be inherently less likely to voluntarily complete a survey. 
 
 
 ## Weaknesses and Next Steps
