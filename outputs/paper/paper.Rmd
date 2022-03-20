@@ -1,6 +1,6 @@
 ---
 title: "Say Cheese! A Snapshot of Canadian Family Demographics"
-subtitle: "An analysis of insights from Canada's 2017 General Social Survey on Family"
+subtitle: "An Analysis of Insights from Canada's 2017 General Social Survey on Family"
 author: 
   - Kimlin Chin
   - Jack McKay
@@ -55,7 +55,7 @@ The data was obtained from Canada's 2017 General Social Survey (GSS) on the Fami
 
 The age distribution of respondents is shown in Figure \@ref(fig:agesrespondents).
 
-```{r agesrespondents, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Respondents' Ages"}
+```{r agesrespondents, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of Respondents' Ages"}
 
 # add labels for 5-year age groups
 five_year_groupings <- raw_data %>%
@@ -82,8 +82,7 @@ five_year_groupings %>%
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank(),
         axis.text.x = element_text(angle = 50, hjust=1)) +
-  labs(title = "Distribution of respondents' ages",
-       x = "Five-year Age groups",
+  labs(x = "Five-year Age groups",
        y = "Number of responses")
 
 ```
@@ -201,6 +200,51 @@ household_data %>%
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+
+In figure \@ref(fig:onepersonhouseholds), we take a closer look at the individuals living alone in terms of their ages and marital status. The shape of the distribution mirrors the shape of the age distribution of the entire sample, which implies that it was chosen randomly and appropriately. The percent of people living alone who are married is in the minority. We see the trend that the majority of persons less than 50 years are single, never married, and then this number remains constant until about 65 years when it starts to decrease. At 50 years and over there are more divorced persons, peaking at 65-69 years. The number of widowed individuals also increases steadily from 50 years and spikes at 80 years and over.
+
+```{r onepersonhouseholds, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Age Distribution of people living alone"}
+
+marital_status_data <- gss_data %>%
+  select(marital_status, caseid)
+
+d <- raw_data %>%
+  mutate(household_size = case_when(hsdsizec == 6 ~ "6+",
+                                    TRUE ~ as.character(hsdsizec)),
+         age_group_5 = case_when(agegr5 == 1 ~ "15 to 19 years",
+                                 agegr5 == 2 ~ "20 to 24 years",
+                                 agegr5 == 3 ~ "25 to 29 years",
+                                 agegr5 == 4 ~ "30 to 34 years",
+                                 agegr5 == 5 ~ "35 to 39 years",
+                                 agegr5 == 6 ~ "40 to 44 years",
+                                 agegr5 == 7 ~ "45 to 49 years",
+                                 agegr5 == 8 ~ "50 to 54 years",
+                                 agegr5 == 9 ~ "55 to 59 years",
+                                 agegr5 == 10 ~ "60 to 64 years",
+                                 agegr5 == 11 ~ "65 to 69 years",
+                                 agegr5 == 12 ~ "70 to 74 years",
+                                 agegr5 == 13 ~ "75 to 79 years",
+                                 agegr5 == 14 ~ "80 years and over"))
+
+d <- left_join(d, marital_status_data, by = c("pumfid" = "caseid")) %>%
+  na.omit()
+
+d %>%
+  filter(household_size == 1) %>%
+  ggplot(aes(x = age_group_5, fill = marital_status)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(x = "Age of respondent",
+       y = "Number of responses",
+       fill = "Marital Status") +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 50, hjust=1))
+
+```
+
+
+
 ## Marriage and Children
 
 ```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of marital status"}
@@ -243,20 +287,21 @@ zero_children <- child_percents %>%
   summarise(total_percent = sum(percent))
 ```
 
-Figure \@ref(fig:numchildren) shows the distribution of the total number of children per respondent. Note that this is not *per household* i.e. persons living together, but rather is the number of children had by the respondent of the household throughout their lifetime. Here we see that the majority of respondents either had 0 children or 2, with almost an identical number of respondents with 0 children as there are with 2. Similarly, the number of respondents with 1 child is very close to the number of those with 3. Thus, we note that about `r round(zero_children$total_percent,2)`%of Canadians do not have any children, and those who do usually have 1-3 children. 
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children per respondent and their marital status. Note that this is not *per household* i.e. persons living together, but rather is the number of children had by the respondent of the household throughout their lifetime. Here we see that the majority of respondents either had 0 children or 2, with almost an identical number of respondents with 0 children as there are with 2. Similarly, the number of respondents with 1 child is very close to the number of those with 3. The majority of married couples have children, and most people who have zero children are single, never married. We note that about `r round(zero_children$total_percent,2)`% of Canadians do not have any children, and those who do usually have 1-3 children. 
 
-```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Total Number of Children per Respondent"}
+```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Total Number of Children per Respondent with Marital Status"}
 # Plot for total number of children
 child_data %>%
-  select(total_children1) %>%
-  ggplot(aes(x = total_children1)) +
-  geom_bar(fill = "#377EB8") +
+  ggplot(aes(x = total_children1, fill = marital_status)) +
+  geom_bar() +
   scale_y_continuous(breaks = seq(0, 7000, by = 1000)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  scale_fill_brewer(palette = "Set1") +
   labs(title = "Total Number of Children per Respondent",
        x = "Number of Children",
-       y = "Number of Responses") +
+       y = "Number of Responses",
+       fill = "Marital Status") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -307,7 +352,7 @@ first_birth_plot <- gss_data %>%
   scale_y_continuous(limits = c(0, 1000),breaks = seq(0, 1000, by = 200)) +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(title = "C. Distribution of Age at First Birth",
+  labs(title = "C. Distribution of Age at First\nBirth",
        x = "Age at First Birth",
        y = "")
 # Plot years between marriage and birth
@@ -389,8 +434,7 @@ pr_geographic <- mapcan(boundaries = province,
        type = standard)
 pr_geographic <- full_join(pr_geographic, 
            immigrant_settled, 
-           by = c("pr_english" = "province")) %>%
-  mutate(n = replace_na(n, 0))
+           by = c("pr_english" = "province"))
 # graph labels
 map_labels <- pr_geographic %>%
   group_by(pr_english) %>%
@@ -402,7 +446,34 @@ map_labels[12, 3] = map_labels[12, 3] - 150000
 map_labels[1, 2] = map_labels[1, 2] + 250000
 map_labels[9, 2] = map_labels[9, 2] + 250000
 map_labels[11, 3] = map_labels[11, 3] - 250000
-pr_geographic <- inner_join(pr_geographic, map_labels, by = "pr_english")
+
+
+pr_geographic <- inner_join(pr_geographic, map_labels, by = "pr_english") %>%
+  mutate(color = case_when(pr_alpha %in% c("SK", "NL") ~ "#ffffff",
+                           TRUE ~ "black"))
+nb_position <- pr_geographic %>%
+  filter(pr_alpha == "NB") %>%
+  select(mid_long, mid_lat)
+
+nb_position <- c(unique(nb_position$mid_long), unique(nb_position$mid_lat))
+
+ns_position <- pr_geographic %>%
+  filter(pr_alpha == "NS") %>%
+  select(mid_long, mid_lat)
+
+ns_position <- c(unique(ns_position$mid_long), unique(ns_position$mid_lat))
+
+pe_position <- pr_geographic %>%
+  filter(pr_alpha == "PE") %>%
+  select(mid_long, mid_lat)
+
+pe_position <- c(unique(pe_position$mid_long), unique(pe_position$mid_lat))
+
+
+pr_geographic <- pr_geographic %>%
+  mutate(pr_alpha = case_when(pr_alpha %in% c("ON", "AB", "SK", "NL", "BC", "MB", "QC", "NU", "YT", "NT") ~ pr_alpha))
+
+
 # plot map
 pr_geographic %>%
   ggplot(aes(x = long, y = lat, group = group, fill = n)) +
@@ -410,7 +481,12 @@ pr_geographic %>%
   coord_fixed() +
   theme_mapcan() +
   scale_fill_viridis_c(name = "Number of Immigrants") +
-  geom_text(aes(label = pr_alpha, x = mid_long, y = mid_lat))
+  scale_color_manual(values = c("#ffffff","#000000", "#000000")) +
+  geom_text(aes(label = pr_alpha, x = mid_long, y = mid_lat, color = color)) +
+  geom_text(aes(label = "NB", x = nb_position[1], y = nb_position[2]), nudge_y = -250000, nudge_x = -100000) +
+  geom_text(aes(label = "NS", x = ns_position[1], y = ns_position[2]), nudge_x = 250000) +
+  geom_text(aes(label = "PE", x = pe_position[1], y = pe_position[2]), nudge_y = 150000) +
+  guides(color=FALSE) # https://stackoverflow.com/questions/42686475/how-do-i-just-remove-one-of-the-two-legends-in-ggplot
 ```
 
 Figure \@ref(fig:immigrantsarrival) shows the years that respondents who were born outside of Canada reported arriving in Canada, as well as where they hailed from. Notably the population of Europeans made up the largest proportion of immigrants and was at its peak from 1946 to 1959, but decreased dramatically until 1970, and has since then remained almsot constant. In contrast, the population of Asian immigrants has been increasing steadily since 1979, with Asian immigrants accounting for the largest proportion of immigrants since about 1985. The number of immigrants from the Americas has remained relatively constant since 1965, while the number of African immigrants has been steadily increasing since 2000. 
@@ -453,6 +529,7 @@ lang_spoke_data %>%
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(),
         legend.position = "bottom") +
+  guides(fill=guide_legend(nrow=4, byrow=TRUE)) +
   labs(x = "Province",
        y = "Number of responses",
        fill = "Language\nspoken in\nhousehold") +
@@ -466,7 +543,7 @@ lang_spoke_data %>%
 Figure \@ref(fig:income) shows the distribution of the before tax household income of respondents, broken down by the size of the household and grouped into intervals of $25,000. Here we see that a surprisingly high proportion of respondents reported a household income of \$125,000 or higher, almost 40% higher than the median before-tax income of Canadian families, \$90,390 [@medincome]. In fact, more respondents reported incomes of \$125,000 or higher than any other income interval, with about 4700 responses. This was a very surprising result, and could speak to a potential sampling bias towards wealthier households. Notably, the second most common response was \$25,000 to \$49,999, reported by about 4300 respondents, followed by \$50,000 to \$74,999 with about 3600 and \$75,000 to \$99,999 with about 2900 responses. The distribution of responses based on household size shows that as family income increases, so too does the average size of the household, with 1 person households most frequently reporting income \$49,999 or lower, and households of 4 people or greater most commonly reporting income greater than \$99,999. This is to be expected, as the more people there are in a family, the more potential employment opportunities and thus revenue streams for that family.
 
 
-```{r income, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Income"}
+```{r income, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Family Income with Household Size"}
 
 # Data wrangling for income
 income_data <- gss_data %>%
@@ -495,7 +572,7 @@ income_data %>%
 
 ```
 
-```{r hoursworked, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Hours Worked"}
+```{r hoursworked, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Average Hours Worked per Week"}
 
 # Data wrangling for hours worked
 hrs_worked_data <- gss_data %>%
@@ -503,12 +580,21 @@ hrs_worked_data <- gss_data %>%
   add_count(average_hours_worked) %>% 
   na.omit()
 
+hrs_worked_summary <- hrs_worked_data %>%
+  group_by(average_hours_worked) %>%
+  summarise(percent = 100*n()/nrow(hrs_worked_data))
+
+# 5+ people in a houshold percentage
+hrs_freq <- hrs_worked_summary[3,] %>%
+  select(percent) %>%
+  summarise(total_percent = sum(percent))
+
 # we can maybe look at hrs worked for a subset of the population i.e.
 # location like "plot for place of birth"?
 # Plot for hours worked
 hrs_worked_data %>%
   ggplot(aes(x = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-  geom_bar() +
+  geom_bar(fill = "#4DAF4A") +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
         legend.position = "none") +
@@ -522,38 +608,78 @@ hrs_worked_data %>%
 
 ## Religion
 
-Figure \@ref(fig:religion) shows the distribution of responses when respondents were asked to rate the importance of religion in their lives. Here we see that the religion is still important to the majority of Canadians, with the most common answer being "Very important", with almost 7000 responses, followed by "Somewhat important" with just over 6000 responses. Conversely, the least common response was "Don't Know", with around 200 responses. About 13,000 respondents answered that religion was either "Very important" or "Somewhat important", with around 7000 respondents answering that religion was either "Not very important" or "Not at all important". This means that while religion still plays an important role in the majority of Canadian's lives, it is of little importance to a large minority of Canadians. 
-
-```{r religion, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Religion"}
+```{r religion, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Religion affiliation and importance"}
 
 # Data wrangling for religion
-religion_data <- gss_data %>%
-  select(regilion_importance) %>% 
-  add_count(regilion_importance) %>% 
+religion_data <- raw_data %>%
+  select(religflg, pumfid, agegr5) %>%
+  mutate(religious_affiliation = case_when(religflg == 1 ~ "Has a religious affiliation",
+                                           religflg == 2 ~ "No religious affiliation",
+                                           religflg == 7 ~ "Don't know",
+                                           religflg == 8 ~ "Refusal",
+                                           religflg == 9 ~ "Not stated"),
+         age_group_5 = case_when(agegr5 == 1 ~ "15 to 19 years",
+                                 agegr5 == 2 ~ "20 to 24 years",
+                                 agegr5 == 3 ~ "25 to 29 years",
+                                 agegr5 == 4 ~ "30 to 34 years",
+                                 agegr5 == 5 ~ "35 to 39 years",
+                                 agegr5 == 6 ~ "40 to 44 years",
+                                 agegr5 == 7 ~ "45 to 49 years",
+                                 agegr5 == 8 ~ "50 to 54 years",
+                                 agegr5 == 9 ~ "55 to 59 years",
+                                 agegr5 == 10 ~ "60 to 64 years",
+                                 agegr5 == 11 ~ "65 to 69 years",
+                                 agegr5 == 12 ~ "70 to 74 years",
+                                 agegr5 == 13 ~ "75 to 79 years",
+                                 agegr5 == 14 ~ "80 years and over")) %>%
   na.omit()
+
+religion_data <- full_join(religion_data, gss_data, by = c("pumfid" = "caseid"))
 
 # we can maybe look at religion importance for a subset of the population i.e.
 # location like "plot for place of birth"?
 # Plot for religion
 religion_data %>%
-  ggplot(aes(x = reorder(regilion_importance, n))) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
+  ggplot(aes(x = religious_affiliation, fill = regilion_importance)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
   geom_bar() +
   theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
-  labs(title = "Distribution of Religion Importance",
-       x = "Religion Importance",
-       y = "Number of Responses") +
+  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
+  labs(x = "Religious Affiliation",
+       y = "Number of Responses",
+       fill = "Religion Importance") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 
 ```
 
+
+Figure \@ref(fig:religion) shows if respondents have a religious affiliation and how important they think that religion is. The majority of respondents have a religious affiliation. For most respondents who have a religion, religion is at least somewhat important to them, although there is a non-negligible proportion of these persons who do not think that religion is important. Similarly, for persons with no religious affiliation, the majority think that religion is not very important at all, but there are still some who believe in the importance of religion. This means that while religion still plays an important role in the majority of Canadian's lives, it is of little importance to a large minority of Canadians.
+
+
+```{r religionages, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Religion importance by age group"}
+
+religion_data %>%
+  mutate(religion_important = case_when(regilion_importance %in% c("Somewhat important", "Very important") ~ "Somewhat - Very important",
+                                        regilion_importance %in% c("Not very important", "Not at all important") ~ "Not very - Not at all important",
+                                        TRUE ~ regilion_importance)) %>%
+  ggplot(aes(x = age_group_5, fill = religion_important)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set1") +
+  theme_minimal() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
+  labs(x = "Age of respondent",
+       y = "Number of responses",
+       fill = "Religion importance") +
+  theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 50, hjust=1))
+
+```
+
+Figure \@ref(fig:religionages) shows religion importance by age group. We combined categories of religion importance from the previous graph into "Somewhat - Very important", "Not very - Not at all important" and "Don't Know" to get a clearer picture of important vs not important. It can be seen that as age increases, the proportion of persons who think religion is important increases. Notably for individuals less than 30 years old, an equal if not larger percent think that religion is not very important or not important at all.
+
+
 ## Mental Health
 
-Figure \@ref(fig:mentalhealth) shows the distribution of responses when Canadian's were asked to rate their own mental health, with responses grouped by answer and broken down based on age group. Here we see that the overwhelming majority of respondents rated their mental health as "Good" or better, with the highest proportion answering "Very Good", followed closely by "Excellent" and "Good." The fourth most common response, "Fair", trailed behind with about 25% as many responses as "Good." As well, we see that there is little variation in the responses based on age group, with an almost uniform proportion of each age group answering each response. This was a surprising result, as we expected younger age groups to be more likely to have worse mental health when compared to older groups. 
-
-```{r mentalhealth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Mental Health"}
+```{r mentalhealth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Self-rated Mental Health for diffrent age groups"}
 
 # Data wrangling for mental health
 mental_health_data <- gss_data %>%
@@ -578,35 +704,58 @@ mental_health_data %>%
   geom_bar() +
   theme_minimal() +
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank()) +
-  labs(title = "Distribution of Self Rated Mental Health",
-       x = "Self Rated Mental Health",
+  labs(x = "Self Rated Mental Health",
        y = "Number of Responses", 
        fill = "Age groups") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 
 ```
-\newpage
+
+Figure \@ref(fig:mentalhealth) shows the distribution of responses when Canadian's were asked to rate their own mental health, with responses grouped by answer and broken down based on age group. Here we see that the overwhelming majority of respondents rated their mental health as "Good" or better, with the highest proportion answering "Very Good", followed closely by "Excellent" and "Good." The fourth most common response, "Fair", trailed behind with about 25% as many responses as "Good." As well, we see that there is little variation in the responses based on age group, with an almost uniform proportion of each age group answering each response. This was a surprising result, as we expected younger age groups to be more likely to have worse mental health when compared to older groups. 
+
 
 # Discussion
 
-## Family Planning
+In this paper, we explored different aspects of what makes a Canadian family - number of people, their relationships to each other through marriage and children, which lands they have immigrated from, how long they work and how much money they make, their religious beliefs and how they feel about their mental health. We now discuss more in-depth each of these characteristics and how different powers may have influenced how so it came to be.
 
-Canada has always been committed to having strong family planning and sexual and reproductive health (SRH) services. In 2017, Global Affairs Canada -- a branch of the Canadian government -- dedicated CA$650 million over the next 3 years towards promoting the sexual and reproductive health and rights of women and girls [@cadleadership]. In 2015, Canada committed CA\$3.5 billion towards maternal, newborn and child health, including improving SRH services and information [@famplanning]. This strong foothold in the realm of family planning is reflected in this survey in a number of ways. For example, Figure \@ref(fig:householdsize) showcases the distribution of the size of Canadian households, broken down by what type of family lives in that household. Here we see that the majority of households only consist of 1 or 2 people, followed by households containing 3 or 4 people, of which there were a very similar amount. Notably, there is a steep drop-off in frequency of households larger than 4 people, with about a third as many 5-person households as there are 3 or 4-person, and less than a sixth as many households containing 6 or more people. This is likely a reflection of Canada's ample family planning resources leading couples more likely to opt for 1 or 2 children, thus keeping the average household size low. Figure \@ref(fig:numchildren) shows the distribution of the total number of children had by respondents. Interestingly, we see that by far the most frequent responses are 0 children and 2 children, of which there were a nearly identical number of responses. This means that once a couple has one child, they are then more likely to opt to have another child. This seemingly conflicts with Figure \@ref(fig:householdsize), which showed that 3-person households were just as common as 4-person households. There could be a couple reasons for these seemingly disjoint results. The firstly, relative to the general population, a high proportion of elderly people were surveyed. As elderly people are unlikely to still be living with their children, this would naturally lower the average household size without affecting the average number of children. As well, members of the same household are not necessarily parents or children, nor even family members. For example, a small proportion of 3-person households consist of couples. As these households are classified as couples and not intact families, this entails that the 3rd member of the household is not one of the couple's children. In Figure \@ref(fig:householdsize) we also see that aside from 0 and 2, 1 and 3 are both by far the next most common responses, with about 2900 respondents having 1 child and 3200 having 3. This also goes to show that Canada's continued investments into SRH and family planning services have been effective in keeping reproductive rates healthy and sustainable on both an individual and aggregate level. 
+## Family Sizes and Family Planning
+
+Canada has always been committed to having strong family planning and sexual and reproductive health (SRH) services. In 2017, Global Affairs Canada -- a branch of the Canadian government -- dedicated CA$650 million over the next 3 years towards promoting the sexual and reproductive health and rights of women and girls [@cadleadership]. In 2015, Canada committed CA\$3.5 billion towards maternal, newborn and child health, including improving SRH services and information [@famplanning]. This strong foothold in the realm of family planning is reflected in this survey in a number of ways. For example, Figure \@ref(fig:householdsize) showcases the distribution of the size of Canadian households, broken down by what type of family lives in that household. Here we see that the majority of households only consist of 1 or 2 people, followed by households containing 3 or 4 people, of which there were a very similar amount. Notably, there is a steep drop-off in frequency of households larger than 4 people, with about a third as many 5-person households as there are 3 or 4-person, and less than a sixth as many households containing 6 or more people. This is likely a reflection of Canada's ample family planning resources leading couples more likely to opt for 1 or 2 children, thus keeping the average household size low. 
+
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children had by respondents. Interestingly, we see that by far the most frequent responses are 0 children and 2 children, of which there were a nearly identical number of responses. This means that once a couple has one child, they are then more likely to opt to have another child. This seemingly conflicts with Figure \@ref(fig:householdsize), which showed that 3-person households were just as common as 4-person households. However, the difference is because the total number of children in figure \@ref(fig:numchildren) is not necessarily the number of children living in the household. More than half of the respondents were 50 years and over, so they are unlikely to be living with their children. As well, members of the same household are not necessarily parents or children, nor even family members. For example, a small proportion of 3-person households consist of couples. As these households are classified as couples and not intact families, this entails that the 3rd member of the household is not one of the couple's children. In Figure \@ref(fig:householdsize) we also see that aside from 0 and 2, 1 and 3 are both by far the next most common responses, with about 2900 respondents having 1 child and 3200 having 3. This also goes to show that Canada's continued investments into SRH and family planning services have been effective in keeping reproductive rates healthy and sustainable on both an individual and aggregate level. 
 
 
 ## Immigration
 
-Canada has a strong track record when it comes to immigration, boasting one of the highest naturalization rates in the world, with about 85% of newcomers eventually becoming citizens [@immigrationtrack]. Figure \@ref(fig:placeofbirth) shows the distribution of the birth place of the respondents parents, grouped by the respondent's province or territory of birth. Here we see that for respondents born in Canada, Ontario has by far the greatest amount of second generation Canadians, with about 30% of Canadians born in Ontario having at least one parent born outside of Canada. British Columbia has a similarly high proportion of second generation Canadians, followed by Alberta, Manitoba and Saskatchewan, each of which has a similar proportion. This is to be expected, as the 2 main hotbeds of immigration in Canada, Toronto and Vancouver, are the capital cities of Ontario and BC respectively. Notably, provinces on the east coast such as New Brunswick, Newfoundland, Nova Scotia and Prince Edward Island all have exceedingly low rates of immigration. While there could be cultural and societal causes for this lack of Atlantic immigration, the most obvious cause would be the general rurality of the provinces; in general, immigrants tend to settle down in urban areas, largely due to the economic and societal opportunities that present themselves in big cities. This is evident in Canada, where immigrants flock to large urban centers such as Toronto, Vancouver and Montreal. Provinces on the Atlantic are far less urbanized than Ontario or BC, and as such immigrants are less likely to settle down in them. Figure \@ref(fig:maplocation) shows a density map of where immigrants currently reside in Canada, supplementing the previous figure. Here we again see that Ontario has by far the most immigrants of any province, followed by British Columbia. It's worth noting that this map only shows the number of immigrants residing in each province, as opposed to the proportion. So while Ontario has far more immigrants than BC, they in fact have a similar proportion of immigrants in their population. Figure \@ref(fig:immigrantsarrival) shows how many immigrants arrived in Canada over 5 year periods since 1946, as well as which continent they were immigrating from. Here we see a sharp increase in the number of immigrants arriving in Canada since 2000, with that number continuing to trend upwards. This coincides with the ongoing efforts by the Canadian government to drive immigration rates up, which is one of the key ways that Canada aims to combat the economic decline driven by its aging population. Increasing immigration rates allows for a new inflow of young and eligible workers into the country, bolstering Canada's workforce and stimulating the economy. Another noticeable trend shown in Figure \@ref(fig:immigrantsarrival) is the increasing rate at which immigrants are hailing from Asia, which has been increasing continuously since 1964 but most noticeably exploded in the early 1980s. This increase coincides with the Early 1980s Recession experienced by Canada, as well as the drastic economic growth China began to experience in the early 1980s and continue to today. Other trends include the increasing rate of African immigrants, and the decreasing rate of European immigrants, with European immigrants making up the smallest proportion of immigrants since 2010. Despite the proportion of European immigrants decreasing, the actual number of European immigrant respondents has remained steady since 1975, meaning that this drop in proportion is more likely related to the drastically increasing amount of Asian immigrants than it is a decreasing propensity for Europeans to immigrate to Canada.
+Canada has a strong track record when it comes to immigration, boasting one of the highest naturalization rates in the world, with about 85% of newcomers eventually becoming citizens [@immigrationtrack]. Figure \@ref(fig:placeofbirth) shows the distribution of the birth place of the respondents parents, grouped by the respondent's province or territory of birth. Here we see that for respondents born in Canada, Ontario has by far the greatest amount of second generation Canadians, with about 30% of Canadians born in Ontario having at least one parent born outside of Canada. British Columbia has a similarly high proportion of second generation Canadians, followed by Alberta, Manitoba and Saskatchewan, each of which has a similar proportion. This is to be expected, as the 2 main hotbeds of immigration in Canada, Toronto and Vancouver, are the capital cities of Ontario and BC respectively. Notably, provinces on the east coast such as New Brunswick, Newfoundland, Nova Scotia and Prince Edward Island all have exceedingly low rates of immigration. While there could be cultural and societal causes for this lack of Atlantic immigration, the most obvious cause would be the general rurality of the provinces; in general, immigrants tend to settle down in urban areas, largely due to the economic and societal opportunities that present themselves in big cities. This is evident in Canada, where immigrants flock to large urban centers such as Toronto, Vancouver and Montreal. Provinces on the Atlantic are far less urbanized than Ontario or BC, and as such immigrants are less likely to settle down in them. 
+
+Figure \@ref(fig:maplocation) shows a density map of where immigrants currently reside in Canada, supplementing the previous figure. Here we again see that Ontario has by far the most immigrants of any province, followed by British Columbia. It's worth noting that this map only shows the number of immigrants residing in each province, as opposed to the proportion. So while Ontario has far more immigrants than BC, they in fact have a similar proportion of immigrants in their population. 
+
+Figure \@ref(fig:immigrantsarrival) shows how many immigrants arrived in Canada over 5 year periods since 1946, as well as which continent they were immigrating from. Here we see a sharp increase in the number of immigrants arriving in Canada since 2000, with that number continuing to trend upwards. This coincides with the ongoing efforts by the Canadian government to drive immigration rates up, which is one of the key ways that Canada aims to combat the economic decline driven by its aging population. Increasing immigration rates allows for a new inflow of young and eligible workers into the country, bolstering Canada's workforce and stimulating the economy. Another noticeable trend shown in Figure \@ref(fig:immigrantsarrival) is the increasing rate at which immigrants are hailing from Asia, which has been increasing continuously since 1964 but most noticeably exploded in the early 1980s. This increase coincides with the Early 1980s Recession experienced by Canada, as well as the drastic economic growth China began to experience in the early 1980s and continue to today. Other trends include the increasing rate of African immigrants, and the decreasing rate of European immigrants, with European immigrants making up the smallest proportion of immigrants since 2010. Despite the proportion of European immigrants decreasing, the actual number of European immigrant respondents has remained steady since 1975, meaning that this drop in proportion is more likely related to the drastically increasing amount of Asian immigrants than it is a decreasing propensity for Europeans to immigrate to Canada.
+
+In figure \@ref(fig:langspoken) we also saw that the provinces Ontario, British Colombia, Quebec, Alberta, Manitoba and Saskatchewan which have the largest number of non-official language speakers are the same provinces which have the largest first and second generation families. This is to be expected since immigrants would most likely speak in their native tongue at home.
+
+## Family Income and Religion
+
+The distribution of family income is pretty uniform, with \$125,000 and more and \$25,000 to \$49,000 being the two most common categories. Many respondents work full-time jobs and we saw that that family income is higher for households with more people. This makes sense intuitively since more people signals more possible income sources. So generally, most households are generally well-off given their number of family members.
+
+Religion is a concept that is often associated with having an impact on family life. As the old saying goes, "A family that prays together, stays together." Although the majority of respondents had a religious affiliation, shockingly a non-negligible number of said religious believers did not think religion to be important. Taking a closer look at the age range of participants in figure \@ref(fig:religionages), we found that the proportion of participants in age groupings less than 30 years of age was equal or greater for religion being non-important compared to being important. However, religious importance was higher for older age groups. Therefore this may be a result of the changing beliefs of the generations, with religious beliefs possibly not being passed down and hence being lost to the sands of time. However, since only religion of respondent was reported and not whether the family as a whole are part of the same religion or engage in religious practices together, we cannot make a definite inference on the importance of religion to the family as a whole.
 
 ## Mental Health
 
-The topic of the Canadian General Social Survey in 2017 was family; it aimed to capture as much information as possible about the structure of Canadian families, with the goal of understanding and monitoring the evolution of families over time. This information can then be used to guide social and fiscal policies so that they may best serve the current needs and wants of Canadian families. As well, the survey provides a glimpse at how well current policies are serving Canadians. For example, question SRH_Q115 asked "In general, would you say your mental health is...?" with respondents choosing one of "Don't Know, Poor, Fair, Good, Very Good and Excellent". The distribution of these responses is exhibited in Figure \@ref(fig:mentalhealth). Very notably, the vast majority of respondents rated their mental health as "Good", "Very Good" or "Excellent", with an exceedingly small proportion of people answer "Poor". As well, Figure \@ref(fig:mentalhealth) also shows the distribution of the age of respondents for each answer, in which we see nearly identical proportions of people of all age groups for each answer. This means that not only are Canadians happy in general, but also that this happiness is not skewed towards certain age groups, as we had originally hypothesized. It must be made note of that this survey was conducted in 2017 and thus conducted pre-pandemic. As such, this graph likely does not provide us with an accurate picture of the current sentiments of Canadians. As well, by virtue of the survey not being mandatory for chosen respondents to complete, there is likely an intrinsic sampling bias towards people with better mental health; some of the defining symptoms of poor mental health include tiredness, lack of energy and a lack of initiative. As such, people with poor mental health would be inherently less likely to voluntarily complete a survey. Finally, it must be noted that as respondents were asked to rank their own mental health, the responses may not be entirely accurate, as many respondents are likely not qualified to properly assess their own mental health. 
+The topic of the Canadian General Social Survey in 2017 was family; it aimed to capture as much information as possible about the structure of Canadian families, with the goal of understanding and monitoring the evolution of families over time. This information can then be used to guide social and fiscal policies so that they may best serve the current needs and wants of Canadian families. As well, the survey provides a glimpse at how well current policies are serving Canadians. For example, question SRH_Q115 asked "In general, would you say your mental health is...?" with respondents choosing one of "Don't Know, Poor, Fair, Good, Very Good and Excellent". The distribution of these responses is exhibited in Figure \@ref(fig:mentalhealth). Very notably, the vast majority of respondents rated their mental health as "Good", "Very Good" or "Excellent", with an exceedingly small proportion of people answer "Poor". 
+
+As well, Figure \@ref(fig:mentalhealth) also shows the distribution of the age of respondents for each answer, in which we see nearly identical proportions of people of all age groups for each answer. This means that not only are Canadians happy in general, but also that this happiness is not skewed towards certain age groups, as we had originally hypothesized. It must be made note of that this survey was conducted in 2017 and thus conducted pre-pandemic. As such, this graph likely does not provide us with an accurate picture of the current sentiments of Canadians. As well, by virtue of the survey not being mandatory for chosen respondents to complete, there is likely an intrinsic sampling bias towards people with better mental health; some of the defining symptoms of poor mental health include tiredness, lack of energy and a lack of initiative. As such, people with poor mental health would be inherently less likely to voluntarily complete a survey. Finally, it must be noted that as respondents were asked to rank their own mental health, the responses may not be entirely accurate, as many respondents are likely not qualified to properly assess their own mental health. 
 
 
 ## Weaknesses and Next Steps
 
-There are some weaknesses in our paper that we will discuss. First off, we did not collect the data that we are making inferences from ourselves, and as such we only know as much about the methodology behind it as we've been told. While this certainly could have been a more substantial issue, Statistics Canada did more than their due diligence in providing information about every aspect of the survey, explaining the sampling procedures and survey methodologies in depth, as well as providing a 264 page codebook explaining every variable in depth, and the corresponding question. As such, this is more of an ethical weakness than a practical one. However, there could be biases unaccounted for by Statistics Canada, or other failures in the sampling or surveying process, ethical or otherwise, and we could not know about them. Another possible weakness in our paper is our extensive data cleaning process, wherein we quite literally filtered out hundreds of variables, only keeping the ones we deemed statistically relevant to our paper. In doing so, we sacrificed some of the context that those variables could have lent to the ones we selected. However, this falls back to the ethical question of whether or not data should be left to speak for itself; we opted to extensively clean and filter the data so as to make it as interpretable as possible, but in doing so we did lose information that could have changed our interpretations of the data. As well, some of the variables we filtered out were related to some of the variables that we included, and as such would have almost certainly provided additional context to our graphs and figures. Despite this loss of context, due to the multitude of variables in the data, this was a sacrifice we deemed worthwhile for the overall interpretability of our paper, as well as to avoid wrangling 50+ variables. The final shortcoming of our paper is that we did not end up conclusively answering all of our research questions. For example, while the data we collected seems to conclusively state that the mental health of Canadians is very good, as previously mentioned there are some inherent biases in the sampling method that make people with poor mental health less likely to take the time and effort to complete the survey, skewing our results. As well, there was a general lack of questions regarding mental health, and as such we were limited in what conclusions we could draw. We account for this lack of questions about mental health in our supplementary survey, which was designed with our research questions in mind. As well, even though we didn't conclusively answer all of our research questions as we had hoped, we still answered the majority of them, if not conclusively than the very least satisfactorily.
+There are some weaknesses in our paper that we will discuss. First off, we did not collect the data that we are making inferences from ourselves, and as such we only know as much about the methodology behind it as we've been told. While this certainly could have been a more substantial issue, Statistics Canada did more than their due diligence in providing information about every aspect of the survey, explaining the sampling procedures and survey methodologies in depth, as well as providing a 264 page codebook explaining every variable in depth, and the corresponding question. As such, this is more of an ethical weakness than a practical one. However, there could be biases unaccounted for by Statistics Canada, or other failures in the sampling or surveying process, ethical or otherwise, and we could not know about them. 
+
+Another possible weakness in our paper is our extensive data cleaning process, wherein we quite literally filtered out hundreds of variables, only keeping the ones we deemed statistically relevant to our paper. In doing so, we sacrificed some of the context that those variables could have lent to the ones we selected. However, this falls back to the ethical question of whether or not data should be left to speak for itself; we opted to extensively clean and filter the data so as to make it as interpretable as possible, but in doing so we did lose information that could have changed our interpretations of the data. As well, some of the variables we filtered out were related to some of the variables that we included, and as such would have almost certainly provided additional context to our graphs and figures. Despite this loss of context, due to the multitude of variables in the data, this was a sacrifice we deemed worthwhile for the overall interpretability of our paper, as well as to avoid wrangling 50+ variables. 
+
+The final shortcoming of our paper is that we did not end up conclusively answering all of our research questions. For example, while the data we collected seems to conclusively state that the mental health of Canadians is very good, as previously mentioned there are some inherent biases in the sampling method that make people with poor mental health less likely to take the time and effort to complete the survey, skewing our results. As well, there was a general lack of questions regarding mental health, and as such we were limited in what conclusions we could draw. We account for this lack of questions about mental health in our supplementary survey, which was designed with our research questions in mind. As well, even though we didn't conclusively answer all of our research questions as we had hoped, we still answered the majority of them, if not conclusively than the very least satisfactorily.
 
 
 \newpage
@@ -615,8 +764,7 @@ There are some weaknesses in our paper that we will discuss. First off, we did n
 
 # Appendix {-}
 
-
-# Additional details
+The supplementary survey can be found at https://forms.gle/jun4vZaAh247442s5 .
 
 
 \newpage
