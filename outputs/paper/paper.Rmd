@@ -764,12 +764,14 @@ The final shortcoming of our paper is that we did not end up conclusively answer
 
 The supplementary survey can be found at https://forms.gle/jun4vZaAh247442s5.
 
-![Survey Image 1](https://drive.google.com/uc?id=105Sr09qXQPzrvFUNmOd1qHG84V94jDEn)
-![Survey Image 2](https://drive.google.com/uc?id=107y1yW9TqJINgvVqm0yfXLsdzld2BRtQ)
-![Survey Image 3](https://drive.google.com/uc?id=107JteNN_kV37zsazeSRil85HA-Mur9YG)
-![Survey Image 4](https://drive.google.com/uc?id=104sehzXe95lAC71JAclYGfhQ5Lpzh6sX)
-![Survey Image 5](https://drive.google.com/uc?id=10ASJKQVaztg8YXOqzUTM1U1G4dCT0Z2B)
-  
+```{r supp questions fig, echo=FALSE, fig.cap="Supplementary Survey Questions", out.width = '100%'}
+knitr::include_graphics(here::here("inputs/data/survey_1.png"))
+knitr::include_graphics(here::here("inputs/data/survey_2.png"))
+knitr::include_graphics(here::here("inputs/data/survey_3.png"))
+knitr::include_graphics(here::here("inputs/data/survey_4.png"))
+knitr::include_graphics(here::here("inputs/data/survey_5.png"))
+```
+
 
 \newpage
 
