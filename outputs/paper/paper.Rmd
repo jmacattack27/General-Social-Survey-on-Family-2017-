@@ -37,12 +37,12 @@ The General Social Survey on Family monitors trends and changes in Canadian fami
 
 In this paper, we view a snapshot of what Canadian families look like using data from the 2017 General Social Survey on Family. Specifically, we look to address the following research questions:
 
+- What is the mental health of Canadians like, and what factors may be related to this?
 - What are the most common family sizes and types (e.g. married couple, single-parent, etc.)?
 - Do most Canadians get married and how many children do they have?
 - Are Canadian households mainly low-income, middle-income or high-income?
 - Which provinces have the most immigrant families?
 - Is religion important in Canadian families?
-- What is the mental health of Canadians like, and what factors may be related to this?
 
 
 # Data
@@ -109,10 +109,7 @@ Data collected by the GSS is categorized further into 2 components; core content
 As previously mentioned, participants of this survey were chosen via stratified sampling wherein each province was divided into strata. Most Census Metropolitan Areas (CMAs) were considered separate strata, while the remaining CMAs were grouped together and divided into 3 separate strata. In total there were 27 strata used for sampling. 
 
 The survey frame was then created using 2 main components:
-Lists of telephone numbers, both home lines and cellular, that were available to Statistics Canada, and
-The Address Register (AR), a list of all the dwellings within the 10 provinces. 
-
-The Address Register was used to group together phone numbers by address, so that only one person would be surveyed per household. Approximately 86% of telephone numbers were linked to an address via the AR. These numbers, as well as the remaining 14% of unlinked numbers, were then combined to create the sampling frame. When multiple phone numbers were linked to the same address, these numbers were then sorted by type of number, with landlines first and cellular numbers last. The first number was then considered the best number to reach that household; recall that we want to survey households, not individuals, and so landlines were prioritized over cellular numbers. Note that as a result of the cellular surveying method, households without a telephone were excluded from the survey frame. 
+Lists of telephone numbers, both home lines and cellular, that were available to Statistics Canada, and the Address Register (AR), a list of all the dwellings within the 10 provinces. The Address Register was used to group together phone numbers by address, so that only one person would be surveyed per household. Approximately 86% of telephone numbers were linked to an address via the AR. These numbers, as well as the remaining 14% of unlinked numbers, were then combined to create the sampling frame. When multiple phone numbers were linked to the same address, these numbers were then sorted by type of number, with landlines first and cellular numbers last. The first number was then considered the best number to reach that household; recall that we want to survey households, not individuals, and so landlines were prioritized over cellular numbers. Note that as a result of the cellular surveying method, households without a telephone were excluded from the survey frame. 
 
 
 ## Sampling Methods
@@ -179,7 +176,7 @@ five_plus_households <- household_percents %>%
 
 ## Household Size and Family Types
 
-Figure \@ref(fig:householdsize) shows the distribution of Canadian households grouped by household size, based on what type of family they are. Note that an intact family refers to a now-married of common law couple, where all of the children have both parents, biological or adoptive, living in the household. Similarly, a step-family refers to such a couple where at least one of the children is in a step-relationship with at least one of the parents. Here we see that the majority of households consiste of only 1 or 2 people. From this we can infer that a large portion of Canadians either live alone or with either a partner or roommate. For household sizes greater than 2, the vast majority consist of intact families, with most families having 1 or 2 children. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
+Figure \@ref(fig:householdsize) shows the distribution of Canadian households grouped by household size, based on what type of family they are. Note that an intact family refers to a now-married of common law couple, where all of the children have both parents, biological or adoptive, living in the household. Similarly, a step-family refers to such a couple where at least one of the children is in a step-relationship with at least one of the parents. Here we see that the majority of households consiste of only 1 or 2 people. From this we can infer that a large portion of Canadians either live alone or with either a partner or roommate. For households consisting of more than 2 people, the vast majority consisted of intact families, with most families having 1 or 2 children. Only `r round(five_plus_households$total_percent, 2)`% of households have 5 or more people living together. 
 
 ```{r householdsize, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Family Type by Household Size"}
 # Plot for household size
@@ -199,9 +196,9 @@ household_data %>%
 ```
 
 
-In figure \@ref(fig:onepersonhouseholds), we take a closer look at the individuals living alone in terms of their ages and marital status. The shape of the distribution mirrors the shape of the age distribution of the entire sample, which implies that it was chosen randomly and appropriately. The percent of people living alone who are married is in the minority. We see the trend that the majority of persons less than 50 years are single, never married, and then this number remains constant until about 65 years when it starts to decrease. At 50 years and over there are more divorced persons, peaking at 65-69 years. The number of widowed individuals also increases steadily from 50 years and spikes at 80 years and over.
+In Figure \@ref(fig:onepersonhouseholds), we take a closer look at the individuals living alone grouped by age group and broken down into marital status. Here we see that the shape of the distribution mirrors the shape of the age distribution of the entire sample, which implies that the sample was chosen randomly and appropriately. For people under 50 years of age, the majority are single and have never married, while for individuals older than 50, the proportion of widows grows with age, accounting for the vast majority of individuals older than 80 and living alone. As well, the proportion of divorced individuals grows from 30-34 years of age until it hits a peak at 65-69 years of age, at which point it begins to decline again. 
 
-```{r onepersonhouseholds, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Age Distribution of people living alone"}
+```{r onepersonhouseholds, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Age Distribution of People Living Alone"}
 
 marital_status_data <- gss_data %>%
   select(marital_status, caseid)
@@ -234,8 +231,8 @@ d %>%
   scale_fill_brewer(palette = "Set1") +
   theme_minimal() +
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank()) +
-  labs(x = "Age of respondent",
-       y = "Number of responses",
+  labs(x = "Age of Respondent",
+       y = "Number of Responses",
        fill = "Marital Status") +
   theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 50, hjust=1))
 
@@ -245,7 +242,7 @@ d %>%
 
 ## Marriage and Children
 
-```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of marital status"}
+```{r maritalstatus, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Distribution of Marital Status"}
 
 # Data wrangling for marital status
 marital_status_data <- gss_data %>%
@@ -262,7 +259,7 @@ marital_status_data %>%
   theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
         legend.position = "none") +
   labs(x = "Marital Status",
-       y = "Number of responses") +
+       y = "Number of Responses") +
   scale_fill_brewer(palette = "Set1") +
   coord_flip()
 
@@ -285,7 +282,7 @@ zero_children <- child_percents %>%
   summarise(total_percent = sum(percent))
 ```
 
-Figure \@ref(fig:numchildren) shows the distribution of the total number of children per respondent and their marital status. Note that this is not *per household* i.e. persons living together, but rather the number of children had by the respondent of the household throughout their lifetime. Here we see that the majority of respondents either had 0 or 2 children, with almost an identical number of respondents with 0 children as there are with 2. Similarly, the number of respondents with 1 child is very close to the number of those with 3. The majority of married couples have children, and most people who have zero children are single, never married. We note that about `r round(zero_children$total_percent,2)`% of Canadians do not have any children, and those who do usually have 1-3 children. 
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children per respondent and their marital status. Note that this is not *per household* i.e. persons living together, but rather the number of children had by the respondent of the household throughout their lifetime. Here we see that the majority of respondents either had 0 or 2 children, with almost an identical number of respondents with 0 children as there are with 2. Similarly, the number of respondents with 1 child is very close to the number of those with 3. The majority of married couples have children, and most people who have zero children are single and have never married. We note that about `r round(zero_children$total_percent,2)`% of Canadians do not have any children, and those who do usually have 1-3 children. 
 
 ```{r numchildren, echo=FALSE, message=FALSE, warning=FALSE, fig.height=3, fig.cap="Total Number of Children per Respondent with Marital Status"}
 # Plot for total number of children
@@ -385,7 +382,7 @@ num_people_born_in_canada <- gss_data %>%
 
 Figure \@ref(fig:placeofbirth) depicts the distribution of respondent's province of birth, as well as distribution of respondents' parents' birth place, the latter distribution only looking at whether the parents were born inside or outside of Canada. Although `r 100*round(num_people_born_in_canada$n,2)`% of Canadians in our sample were born in Canada, the number of individuals born outside Canada is greater than the number of individuals born in any individual province. As expected, the vast majority of these persons' parents were also born outside of Canada. Within Canada, the most common provinces of birth are Ontario and Quebec. Notably, despite a similar number of respondents being born in Ontario and Quebec, respondents born in Ontario are more than twice as likely to have one or more parents born outside of Canada. 
 
-The provinces with the largest population of [second generation](https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=117200&CVD=117200&CLV=0&MLV=1&D=1) Canadians--defined as a person born in Canada with one or more parents born outside Canada--are Ontario, British Colombia, Quebec, Alberta, Saskatchewan and Manitoba. In figure \@ref(fig:maplocation), we see that first generation Canadians -- defined as a person with both parents born outside Canada -- mainly settled in the same provinces as the second generation immigrants. Notably, provinces on the east coast such as Nova Scotia and New Brunswick are almost entirely comprised of third generation Canadians, or Canadians born in Canada with both parents also born in Canada. 
+The provinces with the largest population of [second generation](https://www23.statcan.gc.ca/imdb/p3VD.pl?Function=getVD&TVD=117200&CVD=117200&CLV=0&MLV=1&D=1) Canadians--defined as a person born in Canada with one or more parents born outside Canada--are Ontario, British Colombia, Quebec, Alberta, Saskatchewan and Manitoba. In Figure \@ref(fig:maplocation), we see that first generation Canadians--defined as a person with both parents born outside Canada--mainly settled in the same provinces as the second generation immigrants. Notably, provinces on the east coast such as Nova Scotia and New Brunswick are almost entirely comprised of third generation Canadians, or Canadians born in Canada with both parents also born in Canada. 
 
 ```{r placeofbirth, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Persons by Place of Birth"}
 # Data wrangling for place of birth
@@ -570,40 +567,6 @@ income_data %>%
 
 ```
 
-```{r hoursworked, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Average Hours Worked per Week"}
-
-# Data wrangling for hours worked
-hrs_worked_data <- gss_data %>%
-  select(average_hours_worked) %>% 
-  add_count(average_hours_worked) %>% 
-  na.omit()
-
-hrs_worked_summary <- hrs_worked_data %>%
-  group_by(average_hours_worked) %>%
-  summarise(percent = 100*n()/nrow(hrs_worked_data))
-
-# 5+ people in a houshold percentage
-hrs_freq <- hrs_worked_summary[3,] %>%
-  select(percent) %>%
-  summarise(total_percent = sum(percent))
-
-# we can maybe look at hrs worked for a subset of the population i.e.
-# location like "plot for place of birth"?
-# Plot for hours worked
-hrs_worked_data %>%
-  ggplot(aes(x = average_hours_worked)) + # https://datavizpyr.com/re-ordering-bars-in-barplot-in-r/
-  geom_bar(fill = "#4DAF4A") +
-  theme_minimal() +
-  theme(panel.grid.major.y = element_blank(), panel.grid.minor.y = element_blank(), 
-        legend.position = "none") +
-  labs(title = "Distribution of Average Number of Hours Worked per Week",
-       x = "Average Number of Hours Worked per Week",
-       y = "Number of Responses") +
-  scale_fill_brewer(palette = "Set1") +
-  coord_flip()
-
-```
-
 ## Religion
 
 ```{r religion, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Religion affiliation and importance"}
@@ -651,7 +614,7 @@ religion_data %>%
 ```
 
 
-Figure \@ref(fig:religion) shows if respondents have a religious affiliation and how important they think that religion is. The majority of respondents have a religious affiliation. For most respondents who have a religion, religion is at least somewhat important to them, although there is a non-negligible proportion of these persons who do not think that religion is important. Similarly, for persons with no religious affiliation, the majority think that religion is not very important at all, but there are still some who believe in the importance of religion. This means that while religion still plays an important role in the majority of Canadian's lives, it is of little importance to a large minority of Canadians.
+Figure \@ref(fig:religion) groups respondents based on whether or not they have any religious affiliation, and then further divides them based on how important religion is in their lives. We observe that more than 80% of respondents do have some sort of religious affiliation, and that those who do tend to rank religion as either "Somewhat Important" or "Very important." Intuitively, the largest proportion of respondents who did not have any religious affiliation reported that religion was not at all important in their lives. Conversely however, a non-negligible proportion of respondents who stated they had no religious affiliation also reported that religion was very important to them, while about a 30% of respondents that reported some religious affiliation also state that religion is either "Not very important" or "Not at all important." 
 
 
 ```{r religionages, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="Distribution of Religion importance by age group"}
@@ -672,7 +635,7 @@ religion_data %>%
 
 ```
 
-Figure \@ref(fig:religionages) shows religion importance by age group. We combined categories of religion importance from the previous graph into "Somewhat - Very important", "Not very - Not at all important" and "Don't Know" to get a clearer picture of important vs not important. It can be seen that as age increases, the proportion of persons who think religion is important increases. Notably for individuals less than 30 years old, an equal if not larger percent think that religion is not very important or not important at all.
+Figure \@ref(fig:religionages) shows the importance of religion to respondents based on age group. In order to get a clearer picture of how important religion was in general to respondents, we combined categories of religion importance from the previous graph into "Somewhat - Very important", "Not very - Not at all important" and "Don't Know." Here we see that as the age of respondents increases, the likelihood of that religion is important to them also increase. As well, for individuals 30 years or younger, less than half report that religion plays an important role in their lives. This indicates that the importance of religion to Canadians is decreasing with time.
 
 
 ## Mental Health
@@ -715,30 +678,6 @@ Figure \@ref(fig:mentalhealth) shows the distribution of responses when Canadian
 
 # Discussion
 
-In this paper, we explored different aspects of what makes a Canadian family - number of people, their relationships to each other through marriage and children, which lands they have immigrated from, how long they work and how much money they make, their religious beliefs and how they feel about their mental health. We now discuss more in-depth each of these characteristics and how different powers may have influenced how so it came to be.
-
-## Family Sizes and Family Planning
-
-Canada has always been committed to having strong family planning and sexual and reproductive health (SRH) services. In 2017, Global Affairs Canada -- a branch of the Canadian government -- dedicated CA$650 million over the next 3 years towards promoting the sexual and reproductive health and rights of women and girls [@cadleadership]. In 2015, Canada committed CA\$3.5 billion towards maternal, newborn and child health, including improving SRH services and information [@famplanning]. This strong foothold in the realm of family planning is reflected in this survey in a number of ways. For example, Figure \@ref(fig:householdsize) showcases the distribution of the size of Canadian households, broken down by what type of family lives in that household. Here we see that the majority of households only consist of 1 or 2 people, followed by households containing 3 or 4 people, of which there were a very similar amount. Notably, there is a steep drop-off in frequency of households larger than 4 people, with about a third as many 5-person households as there are 3 or 4-person, and less than a sixth as many households containing 6 or more people. This is likely a reflection of Canada's ample family planning resources leading couples more likely to opt for 1 or 2 children, thus keeping the average household size low. 
-
-Figure \@ref(fig:numchildren) shows the distribution of the total number of children had by respondents. Interestingly, we see that by far the most frequent responses are 0 children and 2 children, of which there were a nearly identical number of responses. This means that once a couple has one child, they are then more likely to opt to have another child. This seemingly conflicts with Figure \@ref(fig:householdsize), which showed that 3-person households were just as common as 4-person households. However, the difference is because the total number of children in figure \@ref(fig:numchildren) is not necessarily the number of children living in the household. More than half of the respondents were 50 years and over, so they are unlikely to be living with their children. As well, members of the same household are not necessarily parents or children, nor even family members. For example, a small proportion of 3-person households consist of couples. As these households are classified as couples and not intact families, this entails that the 3rd member of the household is not one of the couple's children. In Figure \@ref(fig:householdsize) we also see that aside from 0 and 2, 1 and 3 are both by far the next most common responses, with about 2900 respondents having 1 child and 3200 having 3. This also goes to show that Canada's continued investments into SRH and family planning services have been effective in keeping reproductive rates healthy and sustainable on both an individual and aggregate level. 
-
-
-## Immigration
-
-Canada has a strong track record when it comes to immigration, boasting one of the highest naturalization rates in the world, with about 85% of newcomers eventually becoming citizens [@immigrationtrack]. Figure \@ref(fig:placeofbirth) shows the distribution of the birth place of the respondents parents, grouped by the respondent's province or territory of birth. Here we see that for respondents born in Canada, Ontario has by far the greatest amount of second generation Canadians, with about 30% of Canadians born in Ontario having at least one parent born outside of Canada. British Columbia has a similarly high proportion of second generation Canadians, followed by Alberta, Manitoba and Saskatchewan, each of which has a similar proportion. This is to be expected, as the 2 main hotbeds of immigration in Canada, Toronto and Vancouver, are the capital cities of Ontario and BC respectively. Notably, provinces on the east coast such as New Brunswick, Newfoundland, Nova Scotia and Prince Edward Island all have exceedingly low rates of immigration. While there could be cultural and societal causes for this lack of Atlantic immigration, the most obvious cause would be the general rurality of the provinces; in general, immigrants tend to settle down in urban areas, largely due to the economic and societal opportunities that present themselves in big cities. This is evident in Canada, where immigrants flock to large urban centers such as Toronto, Vancouver and Montreal. Provinces on the Atlantic are far less urbanized than Ontario or BC, and as such immigrants are less likely to settle down in them. 
-
-Figure \@ref(fig:maplocation) shows a density map of where immigrants currently reside in Canada, supplementing the previous figure. Here we again see that Ontario has by far the most immigrants of any province, followed by British Columbia. It's worth noting that this map only shows the number of immigrants residing in each province, as opposed to the proportion. So while Ontario has far more immigrants than BC, they in fact have a similar proportion of immigrants in their population. 
-
-Figure \@ref(fig:immigrantsarrival) shows how many immigrants arrived in Canada over 5 year periods since 1946, as well as which continent they were immigrating from. Here we see a sharp increase in the number of immigrants arriving in Canada since 2000, with that number continuing to trend upwards. This coincides with the ongoing efforts by the Canadian government to drive immigration rates up, which is one of the key ways that Canada aims to combat the economic decline driven by its aging population. Increasing immigration rates allows for a new inflow of young and eligible workers into the country, bolstering Canada's workforce and stimulating the economy. Another noticeable trend shown in Figure \@ref(fig:immigrantsarrival) is the increasing rate at which immigrants are hailing from Asia, which has been increasing continuously since 1964 but most noticeably exploded in the early 1980s. This increase coincides with the Early 1980s Recession experienced by Canada, as well as the drastic economic growth China began to experience in the early 1980s and continue to today. Other trends include the increasing rate of African immigrants, and the decreasing rate of European immigrants, with European immigrants making up the smallest proportion of immigrants since 2010. Despite the proportion of European immigrants decreasing, the actual number of European immigrant respondents has remained steady since 1975, meaning that this drop in proportion is more likely related to the drastically increasing amount of Asian immigrants than it is a decreasing propensity for Europeans to immigrate to Canada.
-
-In figure \@ref(fig:langspoken) we also saw that the provinces Ontario, British Colombia, Quebec, Alberta, Manitoba and Saskatchewan which have the largest number of non-official language speakers are the same provinces which have the largest first and second generation families. This is to be expected since immigrants would most likely speak in their native tongue at home.
-
-## Family Income and Religion
-
-The distribution of family income is pretty uniform, with \$125,000 and more and \$25,000 to \$49,000 being the two most common categories. Many respondents work full-time jobs and we saw that that family income is higher for households with more people. This makes sense intuitively since more people signals more possible income sources. So generally, most households are generally well-off given their number of family members.
-
-Religion is a concept that is often associated with having an impact on family life. As the old saying goes, "A family that prays together, stays together." Although the majority of respondents had a religious affiliation, shockingly a non-negligible number of said religious believers did not think religion to be important. Taking a closer look at the age range of participants in figure \@ref(fig:religionages), we found that the proportion of participants in age groupings less than 30 years of age was equal or greater for religion being non-important compared to being important. However, religious importance was higher for older age groups. Therefore this may be a result of the changing beliefs of the generations, with religious beliefs possibly not being passed down and hence being lost to the sands of time. However, since only religion of respondent was reported and not whether the family as a whole are part of the same religion or engage in religious practices together, we cannot make a definite inference on the importance of religion to the family as a whole.
 
 ## Mental Health
 
@@ -746,10 +685,25 @@ The topic of the Canadian General Social Survey in 2017 was family; it aimed to 
 
 As well, Figure \@ref(fig:mentalhealth) also shows the distribution of the age of respondents for each answer, in which we see nearly identical proportions of people of all age groups for each answer. This means that not only are Canadians happy in general, but also that this happiness is not skewed towards certain age groups, as we had originally hypothesized. It must be made note of that this survey was conducted in 2017 and thus conducted pre-pandemic. As such, this graph likely does not provide us with an accurate picture of the current sentiments of Canadians. As well, by virtue of the survey not being mandatory for chosen respondents to complete, there is likely an intrinsic sampling bias towards people with better mental health; some of the defining symptoms of poor mental health include tiredness, lack of energy and a lack of initiative. As such, people with poor mental health would be inherently less likely to voluntarily complete a survey. Finally, it must be noted that as respondents were asked to rank their own mental health, the responses may not be entirely accurate, as many respondents are likely not qualified to properly assess their own mental health. 
 
+## Family Sizes and Family Planning
+
+Canada has always been committed to having strong family planning and sexual and reproductive health (SRH) services. In 2017, Global Affairs Canada -- a branch of the Canadian government -- dedicated CA$650 million over the next 3 years towards promoting the sexual and reproductive health and rights of women and girls [@cadleadership]. In 2015, Canada committed CA\$3.5 billion towards maternal, newborn and child health, including improving SRH services and information [@famplanning]. This strong foothold in the realm of family planning is reflected in this survey in a number of ways. For example, Figure \@ref(fig:householdsize) showcases the distribution of the size of Canadian households, broken down by what type of family lives in that household. Here we see that the majority of households only consist of 1 or 2 people, followed by households containing 3 or 4 people, of which there were a very similar amount. Notably, there is a steep drop-off in frequency of households larger than 4 people, with about a third as many 5-person households as there are 3 or 4-person, and less than a sixth as many households containing 6 or more people. This is likely a reflection of Canada's ample family planning resources leading couples more likely to opt for 1 or 2 children, thus keeping the average household size low. 
+
+Figure \@ref(fig:numchildren) shows the distribution of the total number of children had by respondents. Interestingly, we see that by far the most frequent responses are 0 children and 2 children, of which there were a nearly identical number of responses. This means that once a couple has one child, they are then more likely to opt to have another child. This seemingly conflicts with Figure \@ref(fig:householdsize), which showed that 3-person households were just as common as 4-person households. This is likely because the total number of children had by a respondent is not necessarily the number of children living in the respondents household. More than half of the respondents were 50 years and over, and thus are unlikely to still be living with their children. As well, members of the same household are not necessarily parents or children, nor even family members. For example, a small proportion of 3-person households consist of couples. As these households are classified as couples and not intact families, this entails that the 3rd member of the household is not one of the couple's children. In Figure \@ref(fig:householdsize) we also see that aside from 0 and 2, 1 and 3 are both by far the next most common responses, with about 2900 respondents having 1 child and 3200 having 3. This also goes to show that Canada's continued investments into SRH and family planning services have been effective in keeping reproductive rates healthy and sustainable on both an individual and aggregate level. 
+
+
+## Immigration
+
+Canada has a strong track record when it comes to immigration, boasting one of the highest naturalization rates in the world, with about 85% of newcomers eventually becoming citizens [@immigrationtrack]. Figure \@ref(fig:placeofbirth) shows the distribution of the birth place of the respondents parents, grouped by the respondent's province or territory of birth. Here we see that for respondents born in Canada, Ontario has by far the greatest amount of second generation Canadians, with about 30% of Canadians born in Ontario having at least one parent born outside of Canada. British Columbia has a similarly high proportion of second generation Canadians, followed by Alberta, Manitoba and Saskatchewan, each of which has a similar proportion. This is to be expected, as the 2 main hotbeds of immigration in Canada, Toronto and Vancouver, are the capital cities of Ontario and BC respectively. Notably, provinces on the east coast such as New Brunswick, Newfoundland, Nova Scotia and Prince Edward Island all have exceedingly low rates of immigration. While there could be cultural and societal causes for this lack of Atlantic immigration, the most obvious cause would be the general rurality of the provinces; in general, immigrants tend to settle down in urban areas, largely due to the economic and societal opportunities that present themselves in big cities. This is evident in Canada, where immigrants flock to large urban centers such as Toronto, Vancouver and Montreal. Provinces on the Atlantic are far less urbanized than Ontario or BC, and as such immigrants are less likely to settle down in them. 
+
+Figure \@ref(fig:maplocation) shows a density map of where immigrants currently reside in Canada, supplementing the previous figure. Here we again see that Ontario has by far the most immigrants of any province, followed by British Columbia. It's worth noting that this map only shows the number of immigrants residing in each province, as opposed to the proportion. So while Ontario has far more immigrants than BC, they in fact have a similar proportion of immigrants in the sample population. In Figure \@ref(fig:langspoken) we see that the provinces with the largest number of non-official language speakers, Ontario and British Colombia, are also the provinces with the largest populations of first and second generation families. This is to be expected since immigrants would most likely speak in their native tongue at home.
+
+Figure \@ref(fig:immigrantsarrival) shows how many immigrants arrived in Canada over 5 year periods since 1946, as well as which continent they were immigrating from. Here we see a sharp increase in the number of immigrants arriving in Canada since 2000, with that number continuing to trend upwards. This coincides with the ongoing efforts by the Canadian government to drive immigration rates up, which is one of the key ways that Canada aims to combat the economic decline driven by its aging population. Increasing immigration rates allows for a new inflow of young and eligible workers into the country, bolstering Canada's workforce and stimulating the economy. Another noticeable trend shown in Figure \@ref(fig:immigrantsarrival) is the increasing rate at which immigrants are hailing from Asia, which has been increasing continuously since 1964 but most noticeably exploded in the early 1980s. This increase coincides with the Early 1980s Recession experienced by Canada, as well as the drastic economic growth China began to experience in the early 1980s and continue to experience today. Other trends include the increasing rate of African immigrants, and the decreasing rate of European immigrants, with European immigrants making up the smallest proportion of immigrants since 2010. Despite the proportion of European immigrants decreasing, the actual number of European immigrant respondents has remained steady since 1975, meaning that this drop in proportion is more likely related to the drastically increasing amount of Asian immigrants than it is a decreasing propensity for Europeans to immigrate to Canada.
+
 
 ## Weaknesses and Next Steps
 
-There are some weaknesses in our paper that we will discuss. First off, we did not collect the data that we are making inferences from ourselves, and as such we only know as much about the methodology behind it as we've been told. While this certainly could have been a more substantial issue, Statistics Canada did more than their due diligence in providing information about every aspect of the survey, explaining the sampling procedures and survey methodologies in depth, as well as providing a 264 page codebook explaining every variable in depth, and the corresponding question. As such, this is more of an ethical weakness than a practical one. However, there could be biases unaccounted for by Statistics Canada, or other failures in the sampling or surveying process, ethical or otherwise, and we could not know about them. 
+There are some weaknesses in our paper that we will discuss. First off, we did not collect the data that we are making inferences from ourselves, and as such we only know as much about the methodology behind it as we've been told. While this certainly could have been a more substantial issue, Statistics Canada did more than their due diligence in providing information about every aspect of the survey, explaining the sampling procedures and survey methodologies in depth, as well as providing a 264 page codebook explaining every variable in depth, and the corresponding question. As such, this is more of an ethical weakness than a practical one. However, there could still be biases unaccounted for by Statistics Canada, or other failures in the sampling or surveying process, ethical or otherwise, and we could not know about them. 
 
 Another possible weakness in our paper is our extensive data cleaning process, wherein we quite literally filtered out hundreds of variables, only keeping the ones we deemed statistically relevant to our paper. In doing so, we sacrificed some of the context that those variables could have lent to the ones we selected. However, this falls back to the ethical question of whether or not data should be left to speak for itself; we opted to extensively clean and filter the data so as to make it as interpretable as possible, but in doing so we did lose information that could have changed our interpretations of the data. As well, some of the variables we filtered out were related to some of the variables that we included, and as such would have almost certainly provided additional context to our graphs and figures. Despite this loss of context, due to the multitude of variables in the data, this was a sacrifice we deemed worthwhile for the overall interpretability of our paper, as well as to avoid wrangling 50+ variables. 
 
